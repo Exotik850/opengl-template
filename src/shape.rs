@@ -1,46 +1,69 @@
-use na::{vector, Vector2, U2};
-use nalgebra as na;
-use rand::random;
-use std::fmt;
-use std::fmt::Formatter;
+use crate::vertex::{Manipulate, Vertex, VertexArray};
+use glium::index::PrimitiveType;
+use glium::{uniform, Display, Frame, Program, Surface};
 
-#[derive(Clone, Copy, Debug)]
-pub struct Particle {
-    pub pos: Vector2<f64>,
-    pub vel: Vector2<f64>,
-    pub acc: Vector2<f64>,
+pub struct Shape {
+    pub id: u32,
+    pub va: VertexArray,
+    pub indices: glium::index::NoIndices,
 }
 
-impl Particle {
-    pub fn new(x: f64, y: f64) -> Particle {
-        Particle {
-            pos: vector![x, y],
-            vel: vector![0.0, 0.0],
-            acc: vector![0.0, 0.0],
-        }
+impl Shape {
+    pub fn new(display: &Display, id: u32, index_type: PrimitiveType) -> Self {
+        let va = VertexArray::new(display);
+        let indices = glium::index::NoIndices(index_type);
+
+        Shape { id, va, indices }
     }
 
-    pub fn rand() -> Particle {
-        Particle {
-            pos: vector![random(), random()].normalize(),
-            vel: vector![random(), random()].normalize(),
-            acc: vector![random(), random()].normalize(),
-        }
+    pub fn triangle(display: &Display, id: u32) -> Self {
+        let mut temp: Shape = Shape::new(display, id, PrimitiveType::TrianglesList);
+
+        let vertex1 = Vertex {
+            position: [-0.5, -0.5],
+        };
+        let vertex2 = Vertex {
+            position: [0.0, 0.5],
+        };
+        let vertex3 = Vertex {
+            position: [0.5, -0.5],
+        };
+        let vertices = vec![vertex1, vertex2, vertex3, vertex2 * 2.0f32];
+        temp.va = VertexArray::from_vector(display, vertices);
+        temp
     }
 
-    pub fn update(&mut self) {
-        self.vel += self.acc;
-        self.vel = self.vel.cap_magnitude(5.0);
-        self.pos += self.vel;
-    }
-
-    pub fn add_force(&mut self, force: Vector2<f64>) {
-        self.acc += force;
+    pub fn draw(&self, target: &mut Frame, program: &Program) {
+        let uniforms = uniform! {
+            matrix: [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [ 0.0 , 0.0, 0.0, 1.0f32],
+            ]
+        };
+        target
+            .draw(
+                &self.va.vbo,
+                &self.indices,
+                program,
+                &uniforms,
+                &Default::default(),
+            )
+            .unwrap();
     }
 }
 
-impl fmt::Display for Particle {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{} : {} : {}", self.pos, self.vel, self.acc)
+impl Manipulate for Shape {
+    fn rotate(&mut self, angle: f32) {
+        self.va.rotate(angle);
+    }
+
+    fn translate(&mut self, x: f32, y: f32) {
+        self.va.translate(x, y);
+    }
+
+    fn move_to_origin(&mut self) {
+        self.va.move_to_origin();
     }
 }
