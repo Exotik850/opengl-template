@@ -33,7 +33,14 @@ impl Shape {
         temp
     }
 
-    pub fn draw(&self, target: &mut Frame, program: &Program) {
+}
+
+pub trait Drawable{
+    fn draw(&self, target: &mut Frame, program: &Program);
+}
+
+impl Drawable for Shape{
+    fn draw(&self, target: &mut Frame, program: &Program) {
         let uniforms = uniform! {
             matrix: [
                 [1.0, 0.0, 0.0, 0.0],
@@ -44,7 +51,7 @@ impl Shape {
         };
         target
             .draw(
-                &self.va.vbo,
+                &*self.va.vbo,
                 &self.indices,
                 program,
                 &uniforms,
@@ -55,6 +62,7 @@ impl Shape {
 }
 
 impl Manipulate for Shape {
+
     fn rotate(&mut self, angle: f32) {
         self.va.rotate(angle);
     }

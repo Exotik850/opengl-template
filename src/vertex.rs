@@ -1,5 +1,5 @@
 use glium::{Display, VertexBuffer};
-use std::f32::consts::TAU;
+use std::f32::consts::{PI};
 use std::ops;
 
 #[derive(Copy, Clone, Debug)]
@@ -10,7 +10,7 @@ glium::implement_vertex!(Vertex, position);
 
 #[allow(dead_code)]
 impl Vertex {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Vertex { position: [0.0; 2] }
     }
 }
@@ -18,18 +18,18 @@ impl Vertex {
 #[derive(Debug)]
 pub struct VertexArray {
     pub vertices: Vec<Vertex>,
-    pub vbo: VertexBuffer<Vertex>,
+    pub vbo: Box<VertexBuffer<Vertex>>,
 }
 
 impl VertexArray {
     pub fn new(display: &Display) -> Self {
         let vertices: Vec<Vertex> = vec![];
-        let vbo = VertexBuffer::dynamic(display, &vertices).unwrap();
+        let vbo = Box::new(VertexBuffer::dynamic(display, &vertices).unwrap());
         VertexArray { vertices, vbo }
     }
 
     pub fn from_vector(display: &Display, vertices: Vec<Vertex>) -> Self {
-        let vbo = VertexBuffer::dynamic(display, &vertices).unwrap();
+        let vbo = Box::new(VertexBuffer::dynamic(display, &vertices).unwrap());
         VertexArray { vertices, vbo }
     }
 }
@@ -84,6 +84,7 @@ impl ops::Mul<f32> for Vertex {
 impl ops::MulAssign<f32> for Vertex {
     fn mul_assign(&mut self, rhs: f32) {
         self.position[0] *= rhs;
+        self.position[1] *= rhs;
     }
 }
 
@@ -91,14 +92,14 @@ impl ops::Div<f32> for Vertex {
     type Output = Vertex;
     fn div(self, rhs: f32) -> Self::Output {
         Vertex {
-            position: [self.position[0] * rhs, self.position[1] * rhs],
+            position: [self.position[0] / rhs, self.position[1] / rhs],
         }
     }
 }
 
 impl ops::DivAssign<f32> for Vertex {
     fn div_assign(&mut self, rhs: f32) {
-        self.position[0] *= rhs;
+        self.position[0] /= rhs;
     }
 }
 
@@ -110,7 +111,7 @@ pub trait Manipulate {
 
 impl Manipulate for Vertex {
     fn rotate(&mut self, ang: f32) {
-        let ang = ang * TAU / 180.0;
+        let ang = (ang * PI) / 180.0;
         let tx = ang.cos() * self.position[0] - ang.sin() * self.position[1];
         let ty = ang.sin() * self.position[0] + ang.cos() * self.position[1];
         self.position[0] = tx;
@@ -149,3 +150,5 @@ impl Manipulate for VertexArray {
         self.vbo.write(&self.vertices);
     }
 }
+
+
