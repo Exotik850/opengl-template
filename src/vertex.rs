@@ -15,22 +15,27 @@ impl Vertex {
     }
 }
 
-#[derive(Debug)]
-pub struct VertexArray {
-    pub vertices: Vec<Vertex>,
-    pub vbo: Box<VertexBuffer<Vertex>>,
+pub trait Manipulate<T>
+{
+    fn rotate(&mut self, angle: f32);
+    fn translate(&mut self, x: f32, y: f32);
+    fn move_to_origin(&mut self);
 }
 
-impl VertexArray {
-    pub fn new(display: &Display) -> Self {
-        let vertices: Vec<Vertex> = vec![];
-        let vbo = Box::new(VertexBuffer::dynamic(display, &vertices).unwrap());
-        VertexArray { vertices, vbo }
+impl Manipulate<Vertex> for Vertex{
+    fn rotate(&mut self, angle: f32) {
+        let ang = angle * PI / 180.0;
+        let tx = ang.cos() * self.position[0] - ang.sin() * self.position[1];
+        let ty = ang.sin() * self.position[0] + ang.cos() * self.position[1];
+        self.position = [tx, ty];
     }
 
-    pub fn from_vector(display: &Display, vertices: Vec<Vertex>) -> Self {
-        let vbo = Box::new(VertexBuffer::dynamic(display, &vertices).unwrap());
-        VertexArray { vertices, vbo }
+    fn translate(&mut self, x: f32, y: f32) {
+        self.position = [x, y];
+    }
+
+    fn move_to_origin(&mut self) {
+        self.position = [0.0, 0.0];
     }
 }
 
@@ -100,55 +105,6 @@ impl ops::Div<f32> for Vertex {
 impl ops::DivAssign<f32> for Vertex {
     fn div_assign(&mut self, rhs: f32) {
         self.position[0] /= rhs;
+        self.position[1] /= rhs;
     }
 }
-
-pub trait Manipulate {
-    fn rotate(&mut self, ang: f32);
-    fn translate(&mut self, x: f32, y: f32);
-    fn move_to_origin(&mut self);
-}
-
-impl Manipulate for Vertex {
-    fn rotate(&mut self, ang: f32) {
-        let ang = (ang * PI) / 180.0;
-        let tx = ang.cos() * self.position[0] - ang.sin() * self.position[1];
-        let ty = ang.sin() * self.position[0] + ang.cos() * self.position[1];
-        self.position[0] = tx;
-        self.position[1] = ty;
-    }
-
-    fn translate(&mut self, x: f32, y: f32) {
-        self.position[0] += x;
-        self.position[1] += y;
-    }
-
-    fn move_to_origin(&mut self) {
-        self.position = [0.0; 2];
-    }
-}
-
-impl Manipulate for VertexArray {
-    fn rotate(&mut self, angle: f32) {
-        for s in self.vertices.iter_mut() {
-            s.rotate(angle);
-        }
-        self.vbo.write(&self.vertices)
-    }
-
-    fn translate(&mut self, x: f32, y: f32) {
-        for s in self.vertices.iter_mut() {
-            s.translate(x, y);
-        }
-        self.vbo.write(&self.vertices);
-    }
-
-    fn move_to_origin(&mut self) {
-        for s in self.vertices.iter_mut() {
-            s.move_to_origin();
-        }
-        self.vbo.write(&self.vertices);
-    }
-}
-
-

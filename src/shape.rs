@@ -1,45 +1,33 @@
-use crate::vertex::{Manipulate, Vertex, VertexArray};
-use glium::index::PrimitiveType;
-use glium::{uniform, Display, Frame, Program, Surface};
+use crate::vertex::{Vertex, Manipulate};
+use glium::index::{NoIndices, PrimitiveType};
+use glium::{uniform, Display, Frame, Program, Surface, VertexBuffer};
 
 pub struct Shape {
+    pub vertices: Vec<Vertex>,
+    pub vbo: VertexBuffer<Vertex>,
+    pub index_type: PrimitiveType,
     pub id: u32,
-    pub va: VertexArray,
-    pub indices: glium::index::NoIndices,
 }
 
-impl Shape {
-    pub fn new(display: &Display, id: u32, index_type: PrimitiveType) -> Self {
-        let va = VertexArray::new(display);
-        let indices = glium::index::NoIndices(index_type);
-
-        Shape { id, va, indices }
-    }
-
-    pub fn triangle(display: &Display, id: u32) -> Self {
-        let mut temp: Shape = Shape::new(display, id, PrimitiveType::TrianglesList);
-
-        let vertex1 = Vertex {
-            position: [-0.5, -0.5],
-        };
-        let vertex2 = Vertex {
-            position: [0.0, 0.5],
-        };
-        let vertex3 = Vertex {
-            position: [0.5, -0.5],
-        };
-        let vertices = vec![vertex1, vertex2, vertex3, vertex2 * 2.0f32];
-        temp.va = VertexArray::from_vector(display, vertices);
-        temp
-    }
-
-}
-
-pub trait Drawable{
+pub trait Drawable<U>{
+    fn new(display: &Display, vertices: Vec<Vertex>, index_type: PrimitiveType, id: u32) -> U;
+    fn get_id(&self) -> u32;
     fn draw(&self, target: &mut Frame, program: &Program);
+    fn clone(&self, display: &Display) -> U;
 }
 
-impl Drawable for Shape{
+impl Drawable<Shape> for Shape{
+    fn new(display: &Display, vertices: Vec<Vertex>, index_type: PrimitiveType, id: u32) -> Shape {
+        let vertices = vertices.clone();
+        let vbo: VertexBuffer<Vertex> = VertexBuffer::dynamic(display, &vertices).unwrap();
+
+        Shape { vertices, vbo, index_type, id }
+    }
+
+    fn get_id(&self) -> u32 {
+        self.id
+    }
+
     fn draw(&self, target: &mut Frame, program: &Program) {
         let uniforms = uniform! {
             matrix: [
@@ -51,27 +39,40 @@ impl Drawable for Shape{
         };
         target
             .draw(
-                &*self.va.vbo,
-                &self.indices,
+                &self.vbo,
+                &NoIndices(self.index_type),
                 program,
                 &uniforms,
                 &Default::default(),
             )
             .unwrap();
     }
+
+    fn clone(&self, display: &Display) -> Shape {
+        let vertices = self.vertices.clone();
+        Shape::new(display, vertices, self.index_type, self.id)
+    }
 }
 
-impl Manipulate for Shape {
-
+impl Manipulate<Shape> for Shape{
     fn rotate(&mut self, angle: f32) {
-        self.va.rotate(angle);
+        for vertex in self.vertices.iter_mut(){
+            vertex.rotate(angle);
+        }
+        self.vbo.write(&self.vertices)
     }
 
     fn translate(&mut self, x: f32, y: f32) {
-        self.va.translate(x, y);
+        for vertex in self.vertices.iter_mut(){
+            vertex.translate(x, y);
+        }
+        self.vbo.write(&self.vertices)
     }
 
     fn move_to_origin(&mut self) {
-        self.va.move_to_origin();
+        for vertex in self.vertices.iter_mut(){
+            vertex.move_to_origin();
+        }
+        self.vbo.write(&self.vertices)
     }
 }
