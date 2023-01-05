@@ -9,14 +9,16 @@ pub struct Shape {
     pub id: u32,
 }
 
-pub trait Drawable<U> {
+pub trait Drawable<U> 
+{
     fn new(display: &Display, vertices: Vec<Vertex>, index_type: PrimitiveType, id: u32) -> U;
     fn get_id(&self) -> u32;
     fn draw(&self, target: &mut Frame, program: &Program);
     fn clone(&self, display: &Display) -> U;
 }
 
-impl Drawable<Shape> for Shape {
+impl Drawable<Shape> for Shape 
+{
     fn new(display: &Display, vertices: Vec<Vertex>, index_type: PrimitiveType, id: u32) -> Shape {
         let vertices = vertices.clone();
         let vbo: VertexBuffer<Vertex> = VertexBuffer::dynamic(display, &vertices).unwrap();
