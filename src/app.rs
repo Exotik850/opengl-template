@@ -1,74 +1,88 @@
-use std::any::Any;
-use glium::glutin;
-use glium::glutin::event_loop::{ControlFlow, EventLoop};
+use engine::Runnable;
 use glium::glutin::event::Event;
-use engine;
-use engine::{Runnable};
+use glium::glutin::event_loop::{ControlFlow, EventLoop};
+use glium::{glutin, Display};
 use shape::Drawable;
+use std::any::Any;
 use vertex::Manipulate;
 
-enum State{
-    Running,
-    Exit
+pub struct App {
+    pub event_loop: Option<EventLoop<()>>,
+    pub display: Display,
 }
 
-pub struct App{
-    pub event_loop: Box<EventLoop<()>>,
-}
-
-impl App
-{
-    pub fn new(event_loop: EventLoop<()>) -> Self{
-        App{
-            event_loop: Box::new(event_loop),
+impl App {
+    pub fn new(event_loop: EventLoop<()>, display: Display) -> Self {
+        App {
+            event_loop: Some(event_loop),
+            display,
         }
     }
 
-    pub fn default_app() -> Self{
+    pub fn default_app() -> Self {
         let event_loop = EventLoop::new();
-        Self::new(event_loop)
+        let display = Self::default_display(&event_loop);
+        Self::new(event_loop, display)
     }
 
-    fn check_closed(ev: &Event<()>) -> State{
+    fn default_display(ev: &EventLoop<()>) -> Display {
+        let wb = glutin::window::WindowBuilder::new();
+        let cb = glutin::ContextBuilder::new()
+            .with_depth_buffer(24)
+            .with_vsync(true);
+        let display = Display::new(wb, cb, &ev).unwrap();
+        display
+    }
+
+    fn grab_event_loop(&mut self) -> EventLoop<()> {
+        match self.event_loop.take() {
+            None => {
+                panic!("Event loop already in use!")
+            }
+            Some(x) => x,
+        }
+    }
+
+    fn handle_events<T, U>(&self, ev: &Event<()>, control_flow: &mut ControlFlow, engine: &mut T)
+    where
+        T: Runnable<U> + Any,
+        U: Drawable<U> + Manipulate<U>,
+    {
         match ev {
             Event::WindowEvent { event, .. } => match event {
                 glutin::event::WindowEvent::CloseRequested => {
-                    State::Exit
+                    *control_flow = ControlFlow::Exit;
+                    return;
                 }
-                _ => State::Running,
+                glutin::event::WindowEvent::KeyboardInput { input, .. } => {
+                    engine.handle_keys(input);
+                }
+                _ => return,
             },
             Event::NewEvents(cause) => match cause {
-                glutin::event::StartCause::ResumeTimeReached { .. } => State::Running,
-                glutin::event::StartCause::Init => State::Running,
-                _ => State::Running,
+                glutin::event::StartCause::ResumeTimeReached { .. } => (),
+                glutin::event::StartCause::Init => (),
+                _ => (),
             },
-            _ => State::Running,
+            Event::MainEventsCleared => {
+                engine.update();
+                self.display.gl_window().window().request_redraw();
+            }
+            Event::RedrawRequested(_) => {
+                engine.draw(&self.display);
+            }
+            _ => (),
         }
     }
 
-    fn wait(time: u64) -> std::time::Instant{
-        let next_frame_time = std::time::Instant::now() + std::time::Duration::from_nanos(time);
-        next_frame_time
-    }
-
-    pub fn run<T, U>(self, engine: T)
-    where T: Runnable<U> + Any,
-          U: Drawable<U> + Manipulate<U>
+    pub fn run<T, U>(mut self, mut engine: T)
+    where
+        T: Runnable<U> + Any,
+        U: Drawable<U> + Manipulate<U>,
     {
-        let event_loop = *self.event_loop;
-        let mut engine = engine;
+        let event_loop = self.grab_event_loop();
         event_loop.run(move |ev, _, control_flow| {
-            let state = Self::check_closed(&ev);
-            match state{
-                State::Running => (),
-                State::Exit => {*control_flow = ControlFlow::Exit}
-            }
-
-            engine.update();
-            engine.draw();
-            engine.event_handle(ev);
-            *control_flow = ControlFlow::WaitUntil(Self::wait(5000));
-
+            self.handle_events(&ev, control_flow, &mut engine);
         });
     }
 }
