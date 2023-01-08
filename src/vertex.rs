@@ -3,46 +3,22 @@ use std::f32::consts::{PI};
 use std::ops;
 
 #[derive(Copy, Clone, Debug)]
-pub struct Vertex {
+pub struct f32Vec2 {
     pub position: [f32; 2],
 }
-glium::implement_vertex!(Vertex, position);
+glium::implement_vertex!(f32Vec2, position);
 
 #[allow(dead_code)]
-impl Vertex {
+impl f32Vec2 {
     pub fn new() -> Self {
-        Vertex { position: [0.0; 2] }
+        f32Vec2 { position: [0.0; 2] }
     }
 }
 
-pub trait Manipulate<T>
-{
-    fn rotate(&mut self, angle: f32);
-    fn translate(&mut self, x: f32, y: f32);
-    fn move_to_origin(&mut self);
-}
-
-impl Manipulate<Vertex> for Vertex{
-    fn rotate(&mut self, angle: f32) {
-        let ang = angle * PI / 180.0;
-        let tx = ang.cos() * self.position[0] - ang.sin() * self.position[1];
-        let ty = ang.sin() * self.position[0] + ang.cos() * self.position[1];
-        self.position = [tx, ty];
-    }
-
-    fn translate(&mut self, x: f32, y: f32) {
-        self.position = [x, y];
-    }
-
-    fn move_to_origin(&mut self) {
-        self.position = [0.0, 0.0];
-    }
-}
-
-impl ops::Add for Vertex {
-    type Output = Vertex;
+impl ops::Add for f32Vec2 {
+    type Output = f32Vec2;
     fn add(self, other: Self) -> Self::Output {
-        Vertex {
+        f32Vec2 {
             position: [
                 self.position[0] + other.position[0],
                 self.position[1] + other.position[1],
@@ -51,17 +27,17 @@ impl ops::Add for Vertex {
     }
 }
 
-impl ops::AddAssign for Vertex {
+impl ops::AddAssign for f32Vec2 {
     fn add_assign(&mut self, other: Self) {
         self.position[0] += other.position[0];
         self.position[1] += other.position[1];
     }
 }
 
-impl ops::Sub for Vertex {
-    type Output = Vertex;
+impl ops::Sub for f32Vec2 {
+    type Output = f32Vec2;
     fn sub(self, other: Self) -> Self::Output {
-        Vertex {
+        f32Vec2 {
             position: [
                 self.position[0] - other.position[0],
                 self.position[1] - other.position[1],
@@ -70,39 +46,39 @@ impl ops::Sub for Vertex {
     }
 }
 
-impl ops::SubAssign for Vertex {
+impl ops::SubAssign for f32Vec2 {
     fn sub_assign(&mut self, other: Self) {
         self.position[0] -= other.position[0];
         self.position[1] -= other.position[1];
     }
 }
 
-impl ops::Mul<f32> for Vertex {
-    type Output = Vertex;
+impl ops::Mul<f32> for f32Vec2 {
+    type Output = f32Vec2;
     fn mul(self, rhs: f32) -> Self::Output {
-        Vertex {
+        f32Vec2 {
             position: [self.position[0] * rhs, self.position[1] * rhs],
         }
     }
 }
 
-impl ops::MulAssign<f32> for Vertex {
+impl ops::MulAssign<f32> for f32Vec2 {
     fn mul_assign(&mut self, rhs: f32) {
         self.position[0] *= rhs;
         self.position[1] *= rhs;
     }
 }
 
-impl ops::Div<f32> for Vertex {
-    type Output = Vertex;
+impl ops::Div<f32> for f32Vec2 {
+    type Output = f32Vec2;
     fn div(self, rhs: f32) -> Self::Output {
-        Vertex {
+        f32Vec2 {
             position: [self.position[0] / rhs, self.position[1] / rhs],
         }
     }
 }
 
-impl ops::DivAssign<f32> for Vertex {
+impl ops::DivAssign<f32> for f32Vec2 {
     fn div_assign(&mut self, rhs: f32) {
         self.position[0] /= rhs;
         self.position[1] /= rhs;

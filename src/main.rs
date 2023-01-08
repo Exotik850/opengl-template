@@ -1,15 +1,17 @@
 mod app;
-pub mod shape;
-mod vertex;
 mod engine;
-extern crate glium;
+mod shape;
+mod vertex;
+mod object;
 
-use app::{App};
-use engine::{Engine, Runnable};
-use shape::Shape;
+extern crate glium;
+extern crate winit;
+
+use app::App;
+use engine::{Engine, Updatable};
 
 fn main() {
-    let app = App::default_app();
-    let engine: Engine<Shape> = Engine::init(&app.event_loop);
+    let mut app = App::default_app();
+    let engine: Engine = Engine::init(&app.event_loop_ref());
     app.run(engine);
 }
