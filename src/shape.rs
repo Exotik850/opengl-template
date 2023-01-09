@@ -23,6 +23,26 @@ pub trait HasShape
     }
     fn update_vbo(&self) {self.ref_vbo().write(self.ref_vertices())}
     fn new(vertices: Vec<f32Vec2>, vbo:VertexBuffer<f32Vec2>, index_type: PrimitiveType, id: u32) -> Self::RefType;
+    fn draw(&self, target: &mut Frame, program: &Program) {
+        self.update_vbo();
+        let uniforms = uniform! {
+            matrix: [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [ 0.0 , 0.0, 0.0, 1.0f32],
+            ]
+        };
+        target
+            .draw(
+                self.ref_vbo(),
+                &NoIndices(*self.ref_index()),
+                program,
+                &uniforms,
+                &Default::default(),
+            )
+            .unwrap();
+    }
 }
 
 impl HasShape for Shape
@@ -35,34 +55,4 @@ impl HasShape for Shape
     fn new(vertices: Vec<f32Vec2>, vbo: VertexBuffer<f32Vec2>, index_type: PrimitiveType, id: u32) -> Self::RefType {
         Shape{ vertices, vbo, index_type, id, }
     }
-}
-
-pub trait Drawable
-{
-    fn draw(&self, target: &mut Frame, program: &Program);
-}
-
-impl<T> Drawable for T
-where T: HasShape
-{
-    fn draw(&self, target: &mut Frame, program: &Program) {
-    self.update_vbo();
-    let uniforms = uniform! {
-            matrix: [
-                [1.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0, 0.0],
-                [ 0.0 , 0.0, 0.0, 1.0f32],
-            ]
-        };
-    target
-    .draw(
-    self.ref_vbo(),
-    &NoIndices(*self.ref_index()),
-    program,
-    &uniforms,
-    &Default::default(),
-    )
-    .unwrap();
-}
 }

@@ -5,6 +5,7 @@ use std::cell::RefCell;
 use std::ops::Deref;
 use object::{HasPos};
 
+// Holds the event loop that will run the engine
 pub struct App {
     pub event_loop: RefCell<EventLoop<()>>,
 }
@@ -29,6 +30,7 @@ impl App {
         self.event_loop.into_inner()
     }
 
+    // Runs any type that implements Updatable that holds a type of HasPos object
     pub fn run<T, U>(self, mut engine: T)
         where
             T: Runnable<U> + Any,

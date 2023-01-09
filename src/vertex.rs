@@ -1,5 +1,4 @@
-use glium::{Display, VertexBuffer};
-use std::f32::consts::{PI};
+use std::fmt::{Display, Formatter};
 use std::ops;
 
 #[derive(Copy, Clone, Debug)]
@@ -82,5 +81,11 @@ impl ops::DivAssign<f32> for f32Vec2 {
     fn div_assign(&mut self, rhs: f32) {
         self.position[0] /= rhs;
         self.position[1] /= rhs;
+    }
+}
+
+impl Display for f32Vec2{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {})", self.position[0], self.position[1])
     }
 }
