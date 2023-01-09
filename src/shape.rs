@@ -31,7 +31,8 @@ pub trait HasShape
                 [0.0, 1.0, 0.0, 0.0],
                 [0.0, 0.0, 1.0, 0.0],
                 [ 0.0 , 0.0, 0.0, 1.0f32],
-            ]
+            ],
+            world_position: [0.0, 0.0]
         };
         target
             .draw(
