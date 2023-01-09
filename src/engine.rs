@@ -67,9 +67,17 @@ impl Updatable for Engine
             index_type: PrimitiveType::TrianglesList,
             id: 0,
         };
+        let shape2 = Shape{
+            vertices: vertices.clone(),
+            vbo: Shape::new_vbo(&display, &vertices),
+            index_type: PrimitiveType::TrianglesList,
+            id: 0,
+        };
         let obj = Object::from_shape(shape);
+        let mut obj2 = Object::from_shape(shape2);
+        obj2.rotate(-90.0);
         let programs = vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
-        Self::new(vec![obj], programs, display)
+        Self::new(vec![obj, obj2], programs, display)
     }
     fn new(objects: Vec<Object>, programs: Vec<Program>, display: Display) -> Self::Type
     { Engine { objects, programs, display } }
