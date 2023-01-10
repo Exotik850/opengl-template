@@ -1,14 +1,14 @@
+use flowfield::FlowField;
+use glium::index::PrimitiveType;
+use glium::{glutin, Display, Program, Surface};
+use object::{HasPos, Object};
+use shape::{HasShape, Shape};
 use std::iter::FlatMap;
 use std::ops::Index;
-use glium::{glutin, Display, Program, Surface};
-use glium::index::PrimitiveType;
+use vertex::f32Vec2;
 use winit::dpi::{LogicalSize, Size};
-use shape::{HasShape, Shape};
 use winit::event::{Event, KeyboardInput, VirtualKeyCode, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
-use flowfield::FlowField;
-use object::{HasPos, Object};
-use vertex::f32Vec2;
 
 // The default shader that is stored in the engine
 pub const BASE_VSHADER: &str = r#"
@@ -35,8 +35,7 @@ pub const BASE_FSHADER: &str = r#"
         }
     "#;
 
-pub struct Engine
-{
+pub struct Engine {
     pub objects: Vec<FlowField>,
     pub programs: Vec<Program>,
     pub display: Display,
@@ -44,30 +43,41 @@ pub struct Engine
 
 // Trait for structs that hold a vector of objects that implement HasPos
 // as well as a vector of programs (shaders) to draw the objects
-impl Updatable for Engine
-{
+impl Updatable for Engine {
     type RefType = FlowField;
     type Type = Engine;
 
-    fn mut_objects(&mut self) -> &mut Vec<Self::RefType> { &mut self.objects }
-    fn ref_objects(&self) -> &Vec<Self::RefType> { &self.objects }
-    fn ref_programs(&self) -> &Vec<Program> { &self.programs }
-    fn ref_display(&self) -> &Display { &self.display }
+    fn mut_objects(&mut self) -> &mut Vec<Self::RefType> {
+        &mut self.objects
+    }
+    fn ref_objects(&self) -> &Vec<Self::RefType> {
+        &self.objects
+    }
+    fn ref_programs(&self) -> &Vec<Program> {
+        &self.programs
+    }
+    fn ref_display(&self) -> &Display {
+        &self.display
+    }
 
     // Set up an engine on a given event loop with predefined objects
-    fn init(event_loop: &EventLoop<()>) -> Self::Type
-    {
+    fn init(event_loop: &EventLoop<()>) -> Self::Type {
         let display = Self::default_display(event_loop);
         let obj = FlowField::init(&display, 25);
-        let programs = vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
+        let programs =
+            vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
         Self::new(vec![obj], programs, display)
     }
-    fn new(objects: Vec<Self::RefType>, programs: Vec<Program>, display: Display) -> Self::Type
-    { Engine { objects, programs, display } }
+    fn new(objects: Vec<Self::RefType>, programs: Vec<Program>, display: Display) -> Self::Type {
+        Engine {
+            objects,
+            programs,
+            display,
+        }
+    }
 }
 
-pub trait Updatable
-{
+pub trait Updatable {
     type RefType: HasPos;
     type Type;
 
@@ -75,14 +85,18 @@ pub trait Updatable
     fn default_display(ev: &EventLoop<()>) -> Display {
         let wb = glutin::window::WindowBuilder::new()
             .with_title("OpenGL Template")
-            .with_inner_size(LogicalSize { width: 800.0, height: 600.0 });
+            .with_inner_size(LogicalSize {
+                width: 600.0,
+                height: 600.0,
+            });
         let cb = glutin::ContextBuilder::new()
-            .with_depth_buffer(24);
+            .with_depth_buffer(24)
+            .with_vsync(true);
         let display = Display::new(wb, cb, &ev).unwrap();
         display
     }
 
-    fn mut_objects(&mut self) ->  &mut Vec<Self::RefType> ;
+    fn mut_objects(&mut self) -> &mut Vec<Self::RefType>;
     fn ref_objects(&self) -> &Vec<Self::RefType>;
     fn ref_programs(&self) -> &Vec<Program>;
     fn ref_display(&self) -> &Display;
@@ -92,13 +106,17 @@ pub trait Updatable
 
 pub trait Runnable<T>
 where
-    T: HasPos
+    T: HasPos,
 {
     // Handle window closes and send keyboard inputs to key handler
     fn window_handle(&mut self, window_event: &WindowEvent, control_flow: &mut ControlFlow) {
         match window_event {
-            WindowEvent::CloseRequested => { *control_flow = ControlFlow::Exit; }
-            WindowEvent::KeyboardInput { input, .. } => { self.handle_keys(input ); }
+            WindowEvent::CloseRequested => {
+                *control_flow = ControlFlow::Exit;
+            }
+            WindowEvent::KeyboardInput { input, .. } => {
+                self.handle_keys(input);
+            }
             _ => (),
         }
     }
@@ -111,13 +129,13 @@ where
 
 impl<T, U> Runnable<T> for U
 where
-    U: Updatable<RefType=T>,
-    T: HasPos
+    U: Updatable<RefType = T>,
+    T: HasPos,
 {
     // Handle events to draw and update when window is done updating and drawing
     fn handle_events(&mut self, ev: &Event<()>, control_flow: &mut ControlFlow) {
         match ev {
-            Event::WindowEvent { event, .. } => {self.window_handle(event, control_flow)}
+            Event::WindowEvent { event, .. } => self.window_handle(event, control_flow),
             Event::MainEventsCleared => {
                 self.update();
                 self.ref_display().gl_window().window().request_redraw();
@@ -150,7 +168,7 @@ where
             // Draw the object onto the frame with the given shader
             let program = programs.index(s.get_id() as usize);
             s.draw(&mut target, program);
-            println!("Drawn {}", s.rotation());
+            // println!("Drawn {}", s.rotation());
         }
 
         // Finish with the frame

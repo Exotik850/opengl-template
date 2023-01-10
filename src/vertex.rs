@@ -12,6 +12,28 @@ impl f32Vec2 {
     pub fn new() -> Self {
         f32Vec2 { position: [0.0; 2] }
     }
+    pub fn x(&self) -> f32 {
+        self.position[0]
+    }
+    pub fn y(&self) -> f32 {
+        self.position[1]
+    }
+    pub fn mag_sq(&self) -> f32 {
+        self.position[0] * self.position[0] + self.position[1] * self.position[1]
+    }
+    pub fn mag(&self) -> f32 {
+        self.mag_sq().sqrt()
+    }
+    pub fn normalize(&mut self) {
+        *self /= self.mag();
+    }
+    pub fn limit(&mut self, limit: f32) {
+        if self.mag() < limit {
+            return;
+        }
+        self.normalize();
+        *self *= limit;
+    }
 }
 
 impl ops::Add for f32Vec2 {
@@ -84,7 +106,7 @@ impl ops::DivAssign<f32> for f32Vec2 {
     }
 }
 
-impl Display for f32Vec2{
+impl Display for f32Vec2 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "({}, {})", self.position[0], self.position[1])
     }
