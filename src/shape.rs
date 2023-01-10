@@ -1,6 +1,7 @@
 use crate::vertex::{f32Vec2};
 use glium::index::{NoIndices, PrimitiveType};
 use glium::{uniform, Display, Frame, Program, Surface, VertexBuffer};
+use winit::event_loop::EventLoop;
 
 pub struct Shape
 {
@@ -10,10 +11,27 @@ pub struct Shape
     pub id: u32,
 }
 
+impl Shape{
+    fn triangle(display: &Display) -> Shape{
+        let vertex1 = f32Vec2{ position: [1.0, -1.0] };
+        let vertex2 = f32Vec2{ position: [-1.0, -1.0]};
+        let vertex3 = f32Vec2{ position: [0.0, 1.0]};
+        let vertices = vec![vertex1, vertex2, vertex3];
+        let shape = Shape{
+            vertices: vertices.clone(),
+            vbo: Shape::new_vbo(&display, &vertices),
+            index_type: PrimitiveType::TrianglesList,
+            id: 0,
+        };
+        shape
+    }
+}
+
 pub trait HasShape
 {
     type RefType;
     fn ref_vertices(&self) -> &Vec<f32Vec2>;
+    fn mut_vertices(&mut self) -> &mut Vec<f32Vec2>;
     fn ref_vbo(&self) -> &VertexBuffer<f32Vec2>;
     fn ref_index(&self) -> &PrimitiveType;
     fn get_id(&self) -> u32;
@@ -50,6 +68,7 @@ impl HasShape for Shape
 {
     type RefType = Shape;
     fn ref_vertices(&self) -> &Vec<f32Vec2> { &self.vertices }
+    fn mut_vertices(&mut self) -> &mut Vec<f32Vec2> {&mut self.vertices}
     fn ref_vbo(&self) -> &VertexBuffer<f32Vec2> { &self.vbo }
     fn ref_index(&self) -> &PrimitiveType { &self.index_type }
     fn get_id(&self) -> u32 { self.id }

@@ -6,3 +6,5 @@ authors = ["Tristen G"]
 [dependencies]
 glium = "0.32.1"
 winit = "0.27.5"
+noise = "0.8.2"
+rand = "0.8.5"
