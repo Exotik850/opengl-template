@@ -1,16 +1,11 @@
-use flowfield::FlowField;
-use glium::index::PrimitiveType;
 use glium::{glutin, Display, Program, Surface};
 use instance_group::InstanceGroup;
-use object::{HasPos, Object};
+use object::HasPos;
 use shape::{HasShape, Shape};
-use std::f32::consts::PI;
-use std::iter::FlatMap;
 use std::ops::Index;
 use std::time::SystemTime;
-use vertex::f32Vec2;
-use winit::dpi::{LogicalSize, Size};
-use winit::event::{Event, KeyboardInput, VirtualKeyCode, WindowEvent};
+use winit::dpi::LogicalSize;
+use winit::event::{Event, KeyboardInput, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
 
 // The default shader that is stored in the engine
@@ -65,7 +60,7 @@ impl Updatable for Engine {
     // Set up an engine on a given event loop with predefined objects
     fn init(event_loop: &EventLoop<()>) -> Self::Type {
         let display = Self::default_display(event_loop);
-        let obj = InstanceGroup::new(Shape::triangle(&display), 100000, &display);
+        let obj = InstanceGroup::new(Shape::triangle(&display), 100, &display);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
         Self::new(vec![obj], programs, display)
@@ -153,9 +148,7 @@ where
     fn update(&mut self) {
         let start = SystemTime::now();
         let objects = self.mut_objects();
-        for s in objects.iter_mut() {
-            s.rotate(0.001);
-        }
+        objects.iter_mut().for_each(|obj| obj.update());
         println!(
             "Update time {:?}",
             SystemTime::now().duration_since(start).unwrap()

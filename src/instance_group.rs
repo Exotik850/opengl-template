@@ -1,5 +1,6 @@
 use glium::{Display, VertexBuffer};
 use object::HasPos;
+use rand::{thread_rng, Rng};
 use rayon::prelude::*;
 use shape::HasShape;
 use std::ops::{Index, IndexMut};
@@ -85,6 +86,11 @@ where
 
     fn update_buffer(&mut self) {
         self.transform_buffer.write(&self.transforms);
+    }
+
+    fn update(&mut self) {
+        let index = thread_rng().gen_range(0..self.transforms.len());
+        self[index].rand();
     }
 
     fn rotate(&mut self, angle: f32) {
