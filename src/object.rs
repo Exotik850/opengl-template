@@ -1,69 +1,99 @@
 use glium::index::{NoIndices, PrimitiveType};
-use glium::{Frame, Program, Surface, uniform, VertexBuffer};
+use glium::program::Uniform;
+use glium::uniforms::UniformBuffer;
+use glium::{uniform, Display, Frame, Program, Surface, VertexBuffer};
 use shape::{HasShape, Shape};
-use vertex::f32Vec2;
+use vertex::{f32Vec2, Attr};
 
-pub struct Object
-{
-    pub world_position: f32Vec2,
-    pub rotation: f32,
-    pub shape: Shape
+pub struct Object {
+    pub shape: Shape,
+    pub transform: [Attr; 1],
+    pub transform_buffer: VertexBuffer<Attr>,
 }
 
 impl Object {
-    pub fn from_shape(shape: Shape) -> Object {
-        let world_position = f32Vec2::new();
-        let rotation = 0.0f32;
-        Object { world_position, rotation, shape }
+    pub fn from_shape(shape: Shape, display: &Display) -> Object {
+        let transform = [Attr::default()];
+        let transform_buffer = VertexBuffer::dynamic(display, &transform).unwrap();
+        Object {
+            shape,
+            transform,
+            transform_buffer,
+        }
     }
 }
-impl HasPos for Object
-{
+impl HasPos for Object {
     type RefType = Shape;
     type Type = Object;
-    fn ref_world_pos(&self) -> &f32Vec2 {&self.world_position}
-    fn mut_world_pos(&mut self) -> &mut f32Vec2 {&mut self.world_position}
-    fn ref_shape(&self) -> &Self::RefType {&self.shape}
-    fn mut_shape(&mut self) -> &mut Self::RefType { &mut self.shape }
-    fn rotation(&self) -> f32 {self.rotation}
-    fn update(&mut self) {
-        self.rotate(0.001);
-        self.mut_world_pos().position[0] += 0.01;
+    fn ref_shape(&self) -> &Self::RefType {
+        &self.shape
     }
-    fn rotate(&mut self, angle: f32) { self.rotation += angle; }
+    fn mut_shape(&mut self) -> &mut Self::RefType {
+        &mut self.shape
+    }
+
+    fn ref_data(&self) -> &[Attr] {
+        &self.transform
+    }
+
+    fn mut_data(&mut self) -> &mut [Attr] {
+        &mut self.transform
+    }
+
+    fn ref_buffer(&self) -> &VertexBuffer<Attr> {
+        &self.transform_buffer
+    }
+
+    fn mut_buffer(&mut self) -> &mut VertexBuffer<Attr> {
+        &mut self.transform_buffer
+    }
+
+    fn update_buffer(&mut self) {
+        self.transform_buffer.write(&self.transform);
+    }
+
+    fn rotate(&mut self, angle: f32) {
+        self.transform[0].rotate(angle);
+    }
+
+    fn set_pos(&mut self, x: f32, y: f32) {
+        self.transform[0].set(x, y);
+    }
 }
 
-pub trait HasPos
-{
+pub trait HasPos {
     type RefType: HasShape;
     type Type;
-    fn ref_world_pos(&self) -> &f32Vec2;
-    fn mut_world_pos(&mut self) -> &mut f32Vec2;
     fn ref_shape(&self) -> &Self::RefType;
     fn mut_shape(&mut self) -> &mut Self::RefType;
-    fn rotation(&self) -> f32;
+    fn ref_data(&self) -> &[Attr];
+    fn mut_data(&mut self) -> &mut [Attr];
+    fn ref_buffer(&self) -> &VertexBuffer<Attr>;
+    fn mut_buffer(&mut self) -> &mut VertexBuffer<Attr>;
+    fn update_buffer(&mut self);
     fn update(&mut self) {}
     fn rotate(&mut self, angle: f32);
-    fn set(&mut self, x: f32, y: f32)
-    {
-        self.mut_world_pos().position[0] = x;
-        self.mut_world_pos().position[1] = y;
+    fn set_pos(&mut self, x: f32, y: f32);
+    fn x(&self) -> f32 {
+        self.ref_data()[0].x()
     }
-
-    fn set_x(&mut self, x: f32) { self.mut_world_pos().position[0] = x; }
-    fn set_y(&mut self, y: f32) { self.mut_world_pos().position[1] = y;}
-    fn x(&self) -> f32 { self.ref_world_pos().position[0] }
-    fn y(&self) -> f32 { self.ref_world_pos().position[1] }
+    fn y(&self) -> f32 {
+        self.ref_data()[0].y()
+    }
 }
 
 impl<T: HasPos> HasShape for T
 where
-    T::RefType: HasShape
+    T::RefType: HasShape,
 {
     type RefType = T::RefType;
 
-    fn ref_vertices(&self) -> &Vec<f32Vec2> { self.ref_shape().ref_vertices() }
-    fn mut_vertices(&mut self) -> &mut Vec<f32Vec2> {self.mut_shape().mut_vertices()}
+    fn ref_vertices(&self) -> &Vec<f32Vec2> {
+        self.ref_shape().ref_vertices()
+    }
+    fn mut_vertices(&mut self) -> &mut Vec<f32Vec2> {
+        self.mut_shape().mut_vertices()
+    }
     fn ref_vbo(&self) -> &VertexBuffer<f32Vec2> {
         self.ref_shape().ref_vbo()
     }
@@ -73,31 +103,21 @@ where
     fn get_id(&self) -> u32 {
         self.ref_shape().get_id()
     }
-    fn new(vertices: Vec<f32Vec2>, vbo: VertexBuffer<f32Vec2>, index_type: PrimitiveType, id: u32) -> Self::RefType {
-        todo!()
-    }
+
     fn draw(&self, target: &mut Frame, program: &Program) {
         self.ref_shape().update_vbo();
-        let sin = self.rotation().sin();
-        let cos = self.rotation().cos();
-        let uniforms = uniform! {
-        matrix: [
-            [cos, -sin, 0.0, 0.0],
-            [sin, cos, 0.0, 0.0],
-            [0.0, 0.0, 1.0, 0.0],
-            [ 0.0 , 0.0, 0.0, 1.0f32],
-        ],
-            world_position: [self.x(), self.y()]
-        };
+        self.ref_buffer().write(self.ref_data());
         target
             .draw(
-                self.ref_shape().ref_vbo(),
+                (
+                    self.ref_shape().ref_vbo(),
+                    self.ref_buffer().per_instance().unwrap(),
+                ),
                 &NoIndices(*self.ref_shape().ref_index()),
                 program,
-                &uniforms,
+                &glium::uniforms::EmptyUniforms,
                 &Default::default(),
             )
             .unwrap();
-    }}
-
-
+    }
+}

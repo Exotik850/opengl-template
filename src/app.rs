@@ -1,9 +1,10 @@
-use engine::{Runnable};
+use engine::Runnable;
 use glium::glutin::event_loop::EventLoop;
+use object::HasPos;
 use std::any::Any;
 use std::cell::RefCell;
 use std::ops::Deref;
-use object::{HasPos};
+use std::time::SystemTime;
 
 // Holds the event loop that will run the engine
 pub struct App {
@@ -32,13 +33,18 @@ impl App {
 
     // Runs any type that implements Updatable that holds a type of HasPos object
     pub fn run<T, U>(self, mut engine: T)
-        where
-            T: Runnable<U> + Any,
-            U: HasPos
+    where
+        T: Runnable<U> + Any,
+        U: HasPos,
     {
         let event_loop = self.grab_event_loop();
         event_loop.run(move |ev, _, control_flow| {
+            let start = SystemTime::now();
             engine.handle_events(&ev, control_flow);
+            println!(
+                "Frame time {:?}",
+                SystemTime::now().duration_since(start).unwrap()
+            );
         });
     }
 }

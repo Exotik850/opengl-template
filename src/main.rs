@@ -1,14 +1,15 @@
 mod app;
 mod engine;
+mod flowfield;
+mod instance_group;
+mod object;
 mod shape;
 mod vertex;
-mod object;
-mod flowfield;
 
 extern crate glium;
-extern crate winit;
 extern crate noise;
 extern crate rand;
+extern crate winit;
 
 use app::App;
 use engine::{Engine, Updatable};

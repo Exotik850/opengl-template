@@ -1,3 +1,4 @@
+use rand::{thread_rng, Rng};
 use std::fmt::{Display, Formatter};
 use std::ops;
 
@@ -6,6 +7,65 @@ pub struct f32Vec2 {
     pub position: [f32; 2],
 }
 glium::implement_vertex!(f32Vec2, position);
+
+#[derive(Copy, Clone, Debug)]
+pub struct Attr {
+    pub world_position: [f32; 2],
+    pub rotation_matrix: [[f32; 4]; 4],
+}
+glium::implement_vertex!(Attr, world_position, rotation_matrix);
+
+impl Default for Attr {
+    fn default() -> Self {
+        let world_pos = [0.0, 0.0];
+        let rotation_matrix = [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ];
+        Attr {
+            world_position: world_pos,
+            rotation_matrix,
+        }
+    }
+}
+
+impl Attr {
+    pub fn translate(&mut self, x: f32, y: f32) {
+        self.world_position[0] += x;
+        self.world_position[1] += y;
+    }
+
+    pub fn set(&mut self, x: f32, y: f32) {
+        self.world_position[0] = x;
+        self.world_position[1] = y;
+    }
+
+    pub fn x(&self) -> f32 {
+        self.world_position[0]
+    }
+
+    pub fn y(&self) -> f32 {
+        self.world_position[1]
+    }
+
+    pub fn rotate(&mut self, ang: f32) {
+        let cos_theta = ang.cos();
+        let sin_theta = ang.sin();
+        for i in 0..4 {
+            let x = self.rotation_matrix[i][0];
+            let y = self.rotation_matrix[i][1];
+            self.rotation_matrix[i][0] = cos_theta * x - sin_theta * y;
+            self.rotation_matrix[i][1] = sin_theta * x + cos_theta * y;
+        }
+    }
+
+    pub fn rand(&mut self) {
+        self.world_position[0] = thread_rng().gen_range(-2.0..2.0);
+        self.world_position[1] = thread_rng().gen_range(-2.0..2.0);
+    }
+}
 
 #[allow(dead_code)]
 impl f32Vec2 {
@@ -28,7 +88,7 @@ impl f32Vec2 {
         *self /= self.mag();
     }
     pub fn limit(&mut self, limit: f32) {
-        if self.mag() < limit {
+        if self.mag_sq() < limit.powi(2) {
             return;
         }
         self.normalize();

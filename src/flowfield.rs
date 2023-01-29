@@ -82,47 +82,47 @@ impl FlowField {
     }
 }
 
-impl HasPos for FlowField {
-    type RefType = Shape;
-    type Type = FlowField;
-
-    fn ref_world_pos(&self) -> &f32Vec2 {
-        &self.world_position
-    }
-
-    fn mut_world_pos(&mut self) -> &mut f32Vec2 {
-        &mut self.world_position
-    }
-
-    fn ref_shape(&self) -> &Self::RefType {
-        &self.shape
-    }
-
-    fn mut_shape(&mut self) -> &mut Self::RefType {
-        &mut self.shape
-    }
-
-    fn rotation(&self) -> f32 {
-        self.rotation
-    }
-
-    fn update(&mut self) {
-        let res = self.res;
-        let cols = self.cols;
-        let grid = self.grid.clone();
-        for (i, pos) in self.mut_vertices().iter_mut().enumerate() {
-            if i % 2 != 0 {
-                continue;
-            }
-            let x = pos.x() as u32 / res;
-            let y = pos.y() as u32 / res;
-            let index = y * cols + x;
-            *pos += grid[index as usize];
-        }
-        FlowField::update_previous_positions(self.mut_vertices());
-    }
-
-    fn rotate(&mut self, angle: f32) {
-        self.rotation += angle;
-    }
-}
+// impl HasPos for FlowField {
+//     type RefType = Shape;
+//     type Type = FlowField;
+//
+//     fn ref_world_pos(&self) -> &f32Vec2 {
+//         &self.world_position
+//     }
+//
+//     fn mut_world_pos(&mut self) -> &mut f32Vec2 {
+//         &mut self.world_position
+//     }
+//
+//     fn ref_shape(&self) -> &Self::RefType {
+//         &self.shape
+//     }
+//
+//     fn mut_shape(&mut self) -> &mut Self::RefType {
+//         &mut self.shape
+//     }
+//
+//     fn rotation(&self) -> f32 {
+//         self.rotation
+//     }
+//
+//     fn update(&mut self) {
+//         let res = self.res;
+//         let cols = self.cols;
+//         let grid = self.grid.clone();
+//         for (i, pos) in self.mut_vertices().iter_mut().enumerate() {
+//             if i % 2 != 0 {
+//                 continue;
+//             }
+//             let x = pos.x() as u32 / res;
+//             let y = pos.y() as u32 / res;
+//             let index = y * cols + x;
+//             *pos += grid[index as usize];
+//         }
+//         FlowField::update_previous_positions(self.mut_vertices());
+//     }
+//
+//     fn rotate(&mut self, angle: f32) {
+//         self.rotation += angle;
+//     }
+// }

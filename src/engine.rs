@@ -1,8 +1,10 @@
 use flowfield::FlowField;
 use glium::index::PrimitiveType;
 use glium::{glutin, Display, Program, Surface};
+use instance_group::InstanceGroup;
 use object::{HasPos, Object};
 use shape::{HasShape, Shape};
+use std::f32::consts::PI;
 use std::iter::FlatMap;
 use std::ops::Index;
 use vertex::f32Vec2;
@@ -14,14 +16,13 @@ use winit::event_loop::{ControlFlow, EventLoop};
 pub const BASE_VSHADER: &str = r#"
         #version 140
         in vec2 position;
+        in vec2 world_position;
+        in mat4 rotation_matrix;
         out vec2 my_attr;
-
-        uniform mat4 matrix;
-        uniform vec2 world_position;
 
         void main() {
             my_attr = position;
-            vec4 pos = vec4(position , 0.0, 1.0) * matrix;
+            vec4 pos = vec4(position , 0.0, 1.0) * rotation_matrix;
             gl_Position = pos + vec4(world_position, 0.0, 1.0);
         }
     "#;
@@ -31,12 +32,12 @@ pub const BASE_FSHADER: &str = r#"
         in vec2 my_attr;
         out vec4 color;
         void main() {
-            color = vec4(my_attr + vec2(0.5, 0.5), 0.0, 1.0);
+            color = vec4(my_attr, 0.0, 1.0);
         }
     "#;
 
 pub struct Engine {
-    pub objects: Vec<FlowField>,
+    pub objects: Vec<InstanceGroup<Shape>>,
     pub programs: Vec<Program>,
     pub display: Display,
 }
@@ -44,7 +45,7 @@ pub struct Engine {
 // Trait for structs that hold a vector of objects that implement HasPos
 // as well as a vector of programs (shaders) to draw the objects
 impl Updatable for Engine {
-    type RefType = FlowField;
+    type RefType = InstanceGroup<Shape>;
     type Type = Engine;
 
     fn mut_objects(&mut self) -> &mut Vec<Self::RefType> {
@@ -63,7 +64,7 @@ impl Updatable for Engine {
     // Set up an engine on a given event loop with predefined objects
     fn init(event_loop: &EventLoop<()>) -> Self::Type {
         let display = Self::default_display(event_loop);
-        let obj = FlowField::init(&display, 25);
+        let obj = InstanceGroup::new(Shape::triangle(&display), 100000, &display);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
         Self::new(vec![obj], programs, display)
@@ -151,7 +152,7 @@ where
     fn update(&mut self) {
         let objects = self.mut_objects();
         for s in objects.iter_mut() {
-            s.update();
+            s.rotate(0.001);
         }
     }
 
@@ -159,7 +160,7 @@ where
         // Grab the target frame from the display
         let mut target = self.ref_display().draw();
         // Clear the background
-        // target.clear_color(0.0, 0.0, 0.0, 1.0);
+        target.clear_color(0.0, 0.0, 0.0, 1.0);
 
         // Use the program at the index of the id of each object
         let programs = self.ref_programs();
@@ -168,7 +169,6 @@ where
             // Draw the object onto the frame with the given shader
             let program = programs.index(s.get_id() as usize);
             s.draw(&mut target, program);
-            // println!("Drawn {}", s.rotation());
         }
 
         // Finish with the frame
