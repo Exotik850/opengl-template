@@ -8,6 +8,7 @@ glium = "0.32.1"
 winit = "0.27.5"
 noise = "0.8.2"
 rand = "0.8.5"
+rayon = "1.6.1"
 
 [profile.release]
 codegen-units = 1

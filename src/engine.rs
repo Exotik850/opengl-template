@@ -7,6 +7,7 @@ use shape::{HasShape, Shape};
 use std::f32::consts::PI;
 use std::iter::FlatMap;
 use std::ops::Index;
+use std::time::SystemTime;
 use vertex::f32Vec2;
 use winit::dpi::{LogicalSize, Size};
 use winit::event::{Event, KeyboardInput, VirtualKeyCode, WindowEvent};
@@ -150,13 +151,20 @@ where
 
     // Update the objects in the vector
     fn update(&mut self) {
+        let start = SystemTime::now();
         let objects = self.mut_objects();
         for s in objects.iter_mut() {
             s.rotate(0.001);
         }
+        println!(
+            "Update time {:?}",
+            SystemTime::now().duration_since(start).unwrap()
+        );
     }
 
     fn draw(&mut self) {
+        let start = SystemTime::now();
+
         // Grab the target frame from the display
         let mut target = self.ref_display().draw();
         // Clear the background
@@ -173,5 +181,9 @@ where
 
         // Finish with the frame
         target.finish().unwrap();
+        println!(
+            "Frame time {:?}",
+            SystemTime::now().duration_since(start).unwrap()
+        );
     }
 }

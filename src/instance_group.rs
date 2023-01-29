@@ -1,5 +1,6 @@
 use glium::{Display, VertexBuffer};
 use object::HasPos;
+use rayon::prelude::*;
 use shape::HasShape;
 use std::ops::{Index, IndexMut};
 use vertex::Attr;
@@ -87,9 +88,7 @@ where
     }
 
     fn rotate(&mut self, angle: f32) {
-        for i in &mut self.transforms {
-            i.rotate(angle);
-        }
+        self.transforms.par_iter_mut().for_each(|p| p.rotate(angle));
     }
 
     fn set_pos(&mut self, x: f32, y: f32) {

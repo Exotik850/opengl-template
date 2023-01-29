@@ -9,6 +9,7 @@ mod vertex;
 extern crate glium;
 extern crate noise;
 extern crate rand;
+extern crate rayon;
 extern crate winit;
 
 use app::App;

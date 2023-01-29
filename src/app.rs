@@ -39,12 +39,7 @@ impl App {
     {
         let event_loop = self.grab_event_loop();
         event_loop.run(move |ev, _, control_flow| {
-            let start = SystemTime::now();
             engine.handle_events(&ev, control_flow);
-            println!(
-                "Frame time {:?}",
-                SystemTime::now().duration_since(start).unwrap()
-            );
         });
     }
 }
