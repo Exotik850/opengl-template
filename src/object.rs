@@ -3,7 +3,7 @@ use glium::program::Uniform;
 use glium::uniforms::UniformBuffer;
 use glium::{uniform, Display, Frame, Program, Surface, VertexBuffer};
 use shape::{HasShape, Shape};
-use vertex::{f32Vec2, Attr};
+use vertex::{F32vec2, Attr};
 
 pub struct Object {
     pub shape: Shape,
@@ -88,13 +88,13 @@ where
 {
     type RefType = T::RefType;
 
-    fn ref_vertices(&self) -> &Vec<f32Vec2> {
+    fn ref_vertices(&self) -> &Vec<F32vec2> {
         self.ref_shape().ref_vertices()
     }
-    fn mut_vertices(&mut self) -> &mut Vec<f32Vec2> {
+    fn mut_vertices(&mut self) -> &mut Vec<F32vec2> {
         self.mut_shape().mut_vertices()
     }
-    fn ref_vbo(&self) -> &VertexBuffer<f32Vec2> {
+    fn ref_vbo(&self) -> &VertexBuffer<F32vec2> {
         self.ref_shape().ref_vbo()
     }
     fn ref_index(&self) -> &PrimitiveType {
@@ -104,7 +104,7 @@ where
         self.ref_shape().get_id()
     }
 
-    fn draw(&self, target: &mut Frame, program: &Program) {
+    fn draw(&self, target: &mut Frame, program: &Vec<Program>) {
         self.ref_shape().update_vbo();
         self.ref_buffer().write(self.ref_data());
         target
@@ -114,7 +114,7 @@ where
                     self.ref_buffer().per_instance().unwrap(),
                 ),
                 &NoIndices(*self.ref_shape().ref_index()),
-                program,
+                &program[self.get_id() as usize],
                 &glium::uniforms::EmptyUniforms,
                 &Default::default(),
             )

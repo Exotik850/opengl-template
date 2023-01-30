@@ -3,10 +3,10 @@ use std::fmt::{Display, Formatter};
 use std::ops;
 
 #[derive(Copy, Clone, Debug)]
-pub struct f32Vec2 {
+pub struct F32vec2 {
     pub position: [f32; 2],
 }
-glium::implement_vertex!(f32Vec2, position);
+glium::implement_vertex!(F32vec2, position);
 
 #[derive(Copy, Clone, Debug)]
 pub struct Attr {
@@ -17,7 +17,7 @@ glium::implement_vertex!(Attr, world_position, rotation_matrix);
 
 impl Default for Attr {
     fn default() -> Self {
-        let world_pos = [0.0, 0.0];
+        let world_position = [0.0, 0.0];
         let rotation_matrix = [
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
@@ -25,7 +25,7 @@ impl Default for Attr {
             [0.0, 0.0, 0.0, 1.0],
         ];
         Attr {
-            world_position: world_pos,
+            world_position,
             rotation_matrix,
         }
     }
@@ -68,9 +68,9 @@ impl Attr {
 }
 
 #[allow(dead_code)]
-impl f32Vec2 {
+impl F32vec2 {
     pub fn new() -> Self {
-        f32Vec2 { position: [0.0; 2] }
+        F32vec2 { position: [0.0; 2] }
     }
     pub fn x(&self) -> f32 {
         self.position[0]
@@ -96,10 +96,10 @@ impl f32Vec2 {
     }
 }
 
-impl ops::Add for f32Vec2 {
-    type Output = f32Vec2;
+impl ops::Add for F32vec2 {
+    type Output = F32vec2;
     fn add(self, other: Self) -> Self::Output {
-        f32Vec2 {
+        F32vec2 {
             position: [
                 self.position[0] + other.position[0],
                 self.position[1] + other.position[1],
@@ -108,17 +108,17 @@ impl ops::Add for f32Vec2 {
     }
 }
 
-impl ops::AddAssign for f32Vec2 {
+impl ops::AddAssign for F32vec2 {
     fn add_assign(&mut self, other: Self) {
         self.position[0] += other.position[0];
         self.position[1] += other.position[1];
     }
 }
 
-impl ops::Sub for f32Vec2 {
-    type Output = f32Vec2;
+impl ops::Sub for F32vec2 {
+    type Output = F32vec2;
     fn sub(self, other: Self) -> Self::Output {
-        f32Vec2 {
+        F32vec2 {
             position: [
                 self.position[0] - other.position[0],
                 self.position[1] - other.position[1],
@@ -127,46 +127,46 @@ impl ops::Sub for f32Vec2 {
     }
 }
 
-impl ops::SubAssign for f32Vec2 {
+impl ops::SubAssign for F32vec2 {
     fn sub_assign(&mut self, other: Self) {
         self.position[0] -= other.position[0];
         self.position[1] -= other.position[1];
     }
 }
 
-impl ops::Mul<f32> for f32Vec2 {
-    type Output = f32Vec2;
+impl ops::Mul<f32> for F32vec2 {
+    type Output = F32vec2;
     fn mul(self, rhs: f32) -> Self::Output {
-        f32Vec2 {
+        F32vec2 {
             position: [self.position[0] * rhs, self.position[1] * rhs],
         }
     }
 }
 
-impl ops::MulAssign<f32> for f32Vec2 {
+impl ops::MulAssign<f32> for F32vec2 {
     fn mul_assign(&mut self, rhs: f32) {
         self.position[0] *= rhs;
         self.position[1] *= rhs;
     }
 }
 
-impl ops::Div<f32> for f32Vec2 {
-    type Output = f32Vec2;
+impl ops::Div<f32> for F32vec2 {
+    type Output = F32vec2;
     fn div(self, rhs: f32) -> Self::Output {
-        f32Vec2 {
+        F32vec2 {
             position: [self.position[0] / rhs, self.position[1] / rhs],
         }
     }
 }
 
-impl ops::DivAssign<f32> for f32Vec2 {
+impl ops::DivAssign<f32> for F32vec2 {
     fn div_assign(&mut self, rhs: f32) {
         self.position[0] /= rhs;
         self.position[1] /= rhs;
     }
 }
 
-impl Display for f32Vec2 {
+impl Display for F32vec2 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "({}, {})", self.position[0], self.position[1])
     }

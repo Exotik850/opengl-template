@@ -60,7 +60,7 @@ impl Updatable for Engine {
     // Set up an engine on a given event loop with predefined objects
     fn init(event_loop: &EventLoop<()>) -> Self::Type {
         let display = Self::default_display(event_loop);
-        let obj = InstanceGroup::new(Shape::triangle(&display), 100, &display);
+        let obj = InstanceGroup::new(Shape::triangle(&display), 100000, &display);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
         Self::new(vec![obj], programs, display)
@@ -148,9 +148,9 @@ where
     fn update(&mut self) {
         let start = SystemTime::now();
         let objects = self.mut_objects();
-        objects.iter_mut().for_each(|obj| obj.update());
+        objects.iter_mut().for_each(|obj| {obj.rotate(0.01); obj.update()});
         println!(
-            "Update time {:?}",
+            "Update time: {:?}",
             SystemTime::now().duration_since(start).unwrap()
         );
     }
@@ -168,14 +168,13 @@ where
         let objects = self.ref_objects();
         for s in objects.iter() {
             // Draw the object onto the frame with the given shader
-            let program = programs.index(s.get_id() as usize);
-            s.draw(&mut target, program);
+            s.draw(&mut target, programs);
         }
 
         // Finish with the frame
         target.finish().unwrap();
         println!(
-            "Frame time {:?}",
+            "Frame time: {:?}",
             SystemTime::now().duration_since(start).unwrap()
         );
     }
