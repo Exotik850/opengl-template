@@ -63,17 +63,11 @@ impl Updatable for Engine {
         let obj = InstanceGroup::new(Shape::triangle(&display), 100, &display);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
-        Self::new(vec![obj], programs, display)
-    }
-    fn new(objects: Vec<Self::RefType>, programs: Vec<Program>, display: Display) -> Self::Type {
-        Engine {
-            objects,
-            programs,
-            display,
-        }
+        Self{ objects: vec![obj], programs, display }
     }
 }
 
+// Trait that makes methods for references to all necessary objects
 pub trait Updatable {
     type RefType: HasPos;
     type Type;
@@ -83,8 +77,8 @@ pub trait Updatable {
         let wb = glutin::window::WindowBuilder::new()
             .with_title("OpenGL Template")
             .with_inner_size(LogicalSize {
-                width: 600.0,
-                height: 600.0,
+                width: 800.0,
+                height: 800.0,
             });
         let cb = glutin::ContextBuilder::new()
             .with_depth_buffer(24)
@@ -97,10 +91,11 @@ pub trait Updatable {
     fn ref_objects(&self) -> &Vec<Self::RefType>;
     fn ref_programs(&self) -> &Vec<Program>;
     fn ref_display(&self) -> &Display;
+    // Set up the engine
     fn init(event_loop: &EventLoop<()>) -> Self::Type;
-    fn new(objects: Vec<Self::RefType>, programs: Vec<Program>, display: Display) -> Self::Type;
 }
 
+// Trait for holding the main functions of the engine
 pub trait Runnable<T>
 where
     T: HasPos,
@@ -152,7 +147,7 @@ where
         objects.iter_mut().for_each(|obj| {obj.rotate(0.01); obj.update()});
         println!(
             "Update time: {:?}",
-            SystemTime::now().duration_since(start).unwrap()
+            start.elapsed().unwrap()
         );
     }
 
@@ -176,7 +171,7 @@ where
         target.finish().unwrap();
         println!(
             "Frame time: {:?}",
-            SystemTime::now().duration_since(start).unwrap()
+            start.elapsed().unwrap()
         );
     }
 }

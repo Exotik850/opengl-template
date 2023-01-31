@@ -86,6 +86,8 @@ where
 
     fn update(&mut self) {
         // self.transforms.par_iter_mut().for_each(|p| {});
+        let index = thread_rng().gen_range(0..self.ref_data().len());
+        self.transforms[index].rand();
     }
 
     fn rotate(&mut self, angle: f32) {

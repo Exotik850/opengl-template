@@ -102,6 +102,10 @@ impl F32vec2 {
         F32vec2{ position: [x, y, z] }
     }
 
+    pub fn lerp(&self, other: &Self, amt: f32) -> F32vec2 {
+        *other * amt + *self * (1.0 - amt)
+    }
+
     pub fn dot_prod(&self, other: &Self) -> f32 {
         self.x() * other.x() + self.y() + other.y() + self.z() * other.z()
     }
