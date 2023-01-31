@@ -6,17 +6,17 @@ use rand::{thread_rng, Rng};
 use shape::{HasShape, Shape};
 use std::f64::consts::PI;
 use std::iter::zip;
-use vertex::F32vec2;
+use vertex::F32vec3;
 
 pub struct FlowField {
-    grid: Vec<F32vec2>,
-    velocities: Vec<F32vec2>,
+    grid: Vec<F32vec3>,
+    velocities: Vec<F32vec3>,
     cols: u32,
     rows: u32,
     res: u32,
     noise: Perlin,
     shape: Shape,
-    world_position: F32vec2,
+    world_position: F32vec3,
     rotation: f32,
 }
 
@@ -33,7 +33,7 @@ impl FlowField {
                 let ang = noise.get([i as f64 * 0.01, j as f64 * 0.01, 0.0]) * PI * 2.0;
                 let tx = ang.cos() as f32;
                 let ty = ang.sin() as f32;
-                grid.push(F32vec2 { position: [tx, ty, 0.0] } * 0.0001);
+                grid.push(F32vec3 { position: [tx, ty, 0.0] } * 0.0001);
             }
         }
         let num_parts = 1000;
@@ -43,14 +43,14 @@ impl FlowField {
         for _ in 0..num_parts {
             let x: f32 = rand.gen_range(-2.0..2.0);
             let y: f32 = rand.gen_range(-2.0..2.0);
-            vertices.push(F32vec2 {
+            vertices.push(F32vec3 {
                 position: [x / 2.0, y / 2.0, 0.0],
             });
-            vertices.push(F32vec2 { position: [x, y, 0.0] });
+            vertices.push(F32vec3 { position: [x, y, 0.0] });
             let ang: f32 = rand.gen();
             let tx = ang.cos();
             let ty = ang.sin();
-            velocities.push(F32vec2 { position: [tx, ty, 0.0] } * 0.0001);
+            velocities.push(F32vec3 { position: [tx, ty, 0.0] } * 0.0001);
         }
         FlowField {
             grid,
@@ -65,14 +65,14 @@ impl FlowField {
                 index_type: PrimitiveType::LinesList,
                 id: 0,
             },
-            world_position: F32vec2 {
+            world_position: F32vec3 {
                 position: [0.0; 3],
             },
             rotation: 0.0,
         }
     }
 
-    fn update_previous_positions(particles: &mut Vec<F32vec2>) {
+    fn update_previous_positions(particles: &mut Vec<F32vec3>) {
         for i in 0..particles.len() / 2 {
             let previous_index = i * 2;
             let current_index = previous_index + 1;

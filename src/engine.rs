@@ -63,7 +63,11 @@ impl Updatable for Engine {
         let obj = InstanceGroup::new(Shape::triangle(&display), 100, &display);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
-        Self{ objects: vec![obj], programs, display }
+        Self {
+            objects: vec![obj],
+            programs,
+            display,
+        }
     }
 }
 
@@ -144,11 +148,11 @@ where
     fn update(&mut self) {
         let start = SystemTime::now();
         let objects = self.mut_objects();
-        objects.iter_mut().for_each(|obj| {obj.rotate(0.01); obj.update()});
-        println!(
-            "Update time: {:?}",
-            start.elapsed().unwrap()
-        );
+        objects.iter_mut().for_each(|obj| {
+            obj.rotateZ(0.01);
+            obj.update()
+        });
+        println!("Update time: {:?}", start.elapsed().unwrap());
     }
 
     fn draw(&mut self) {
@@ -169,9 +173,6 @@ where
 
         // Finish with the frame
         target.finish().unwrap();
-        println!(
-            "Frame time: {:?}",
-            start.elapsed().unwrap()
-        );
+        println!("Frame time: {:?}", start.elapsed().unwrap());
     }
 }

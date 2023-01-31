@@ -3,7 +3,7 @@ use glium::program::Uniform;
 use glium::uniforms::UniformBuffer;
 use glium::{uniform, Display, Frame, Program, Surface, VertexBuffer};
 use shape::{HasShape, Shape};
-use vertex::{F32vec2, Attr};
+use vertex::{Attr, F32vec3};
 
 pub struct Object {
     pub shape: Shape,
@@ -48,12 +48,8 @@ impl HasPos for Object {
         &mut self.transform_buffer
     }
 
-    fn rotate(&mut self, angle: f32) {
+    fn rotateZ(&mut self, angle: f32) {
         self.transform[0].rotateZ(angle);
-    }
-
-    fn set_pos(&mut self, x: f32, y: f32) {
-        self.transform[0].set(x, y);
     }
 }
 
@@ -71,8 +67,7 @@ pub trait HasPos {
         self.ref_shape().update_vbo();
     }
     fn update(&mut self) {}
-    fn rotate(&mut self, angle: f32);
-    fn set_pos(&mut self, x: f32, y: f32);
+    fn rotateZ(&mut self, angle: f32);
     fn x(&self) -> f32 {
         self.ref_data()[0].x()
     }
@@ -87,13 +82,13 @@ where
 {
     type RefType = T::RefType;
 
-    fn ref_vertices(&self) -> &Vec<F32vec2> {
+    fn ref_vertices(&self) -> &Vec<F32vec3> {
         self.ref_shape().ref_vertices()
     }
-    fn mut_vertices(&mut self) -> &mut Vec<F32vec2> {
+    fn mut_vertices(&mut self) -> &mut Vec<F32vec3> {
         self.mut_shape().mut_vertices()
     }
-    fn ref_vbo(&self) -> &VertexBuffer<F32vec2> {
+    fn ref_vbo(&self) -> &VertexBuffer<F32vec3> {
         self.ref_shape().ref_vbo()
     }
     fn ref_index(&self) -> &PrimitiveType {

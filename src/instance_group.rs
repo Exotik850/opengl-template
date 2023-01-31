@@ -3,8 +3,9 @@ use object::HasPos;
 use rand::{thread_rng, Rng};
 use rayon::prelude::*;
 use shape::HasShape;
+use std::f32::consts::PI;
 use std::ops::{Index, IndexMut};
-use vertex::{Attr, F32vec2};
+use vertex::{Attr, F32vec3};
 
 pub struct InstanceGroup<T>
 where
@@ -86,15 +87,17 @@ where
 
     fn update(&mut self) {
         // self.transforms.par_iter_mut().for_each(|p| {});
-        let index = thread_rng().gen_range(0..self.ref_data().len());
-        self.transforms[index].rand();
+        self.transforms.par_iter_mut().for_each(|p| {
+            let mut v = F32vec3::from(&p.world_position);
+            v.rotateZ(PI / 2.0);
+            v *= 0.001;
+            p.translate(v.x(), v.y(), v.z());
+        })
     }
 
-    fn rotate(&mut self, angle: f32) {
-        self.transforms.par_iter_mut().for_each(|p| p.rotateZ(angle));
-    }
-
-    fn set_pos(&mut self, x: f32, y: f32) {
-        todo!()
+    fn rotateZ(&mut self, angle: f32) {
+        self.transforms
+            .par_iter_mut()
+            .for_each(|p| p.rotateZ(angle));
     }
 }
