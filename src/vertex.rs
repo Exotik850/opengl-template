@@ -114,11 +114,12 @@ impl F32vec3 {
     }
 
     pub fn dot(&self, other: &Self) -> F32vec3 {
-        let x = self.x() * other.x();
-        let y = self.y() * other.y();
-        let z = self.z() * other.z();
         F32vec3 {
-            position: [x, y, z],
+            position: [
+                self.x() * other.x(),
+                self.y() * other.y(),
+                self.z() * other.z(),
+            ],
         }
     }
 
@@ -127,11 +128,12 @@ impl F32vec3 {
     }
 
     pub fn cross(&self, other: &Self) -> F32vec3 {
-        let x = self.y() * other.z() - self.z() * other.y();
-        let y = self.z() * other.x() - self.x() * other.z();
-        let z = self.x() * other.y() - self.y() * other.x();
         F32vec3 {
-            position: [x, y, z],
+            position: [
+                self.y() * other.z() - self.z() * other.y(),
+                self.z() * other.x() - self.x() * other.z(),
+                self.x() * other.y() - self.y() * other.x(),
+            ],
         }
     }
 }

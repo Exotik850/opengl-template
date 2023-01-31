@@ -1,11 +1,10 @@
 use glium::{Display, VertexBuffer};
 use object::HasPos;
-use rand::{thread_rng, Rng};
+use rand::Rng;
 use rayon::prelude::*;
 use shape::HasShape;
-use std::f32::consts::PI;
 use std::ops::{Index, IndexMut};
-use vertex::{Attr, F32vec3};
+use vertex::Attr;
 
 pub struct InstanceGroup<T>
 where
@@ -70,7 +69,7 @@ where
     }
 
     fn ref_data(&self) -> &[Attr] {
-        &self.transforms[..]
+        self.transforms.as_slice()
     }
 
     fn mut_data(&mut self) -> &mut [Attr] {
@@ -87,12 +86,15 @@ where
 
     fn update(&mut self) {
         // self.transforms.par_iter_mut().for_each(|p| {});
-        self.transforms.par_iter_mut().for_each(|p| {
-            let mut v = F32vec3::from(&p.world_position);
-            v.rotateZ(PI / 2.0);
-            v *= 0.001;
-            p.translate(v.x(), v.y(), v.z());
-        })
+        // self.transforms.par_iter_mut().for_each(|p| {
+        //     let mut v = F32vec3::from(&p.world_position);
+        //     // if v.mag() > 4.0 * 2.0f32.sqrt() {
+        //     //     panic!("Out of bounds! {:?}", p);
+        //     // }
+        //     // v.rotateZ(PI);
+        //     v *= 0.0001;
+        //     p.translate(v.x(), v.y(), v.z());
+        // });
     }
 
     fn rotateZ(&mut self, angle: f32) {

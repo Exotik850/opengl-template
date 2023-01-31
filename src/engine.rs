@@ -2,7 +2,6 @@ use glium::{glutin, Display, Program, Surface};
 use instance_group::InstanceGroup;
 use object::HasPos;
 use shape::{HasShape, Shape};
-use std::ops::Index;
 use std::time::SystemTime;
 use winit::dpi::LogicalSize;
 use winit::event::{Event, KeyboardInput, WindowEvent};

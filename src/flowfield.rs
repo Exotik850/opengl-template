@@ -8,6 +8,8 @@ use std::f64::consts::PI;
 use std::iter::zip;
 use vertex::F32vec3;
 
+// Unused code as of now
+
 pub struct FlowField {
     grid: Vec<F32vec3>,
     velocities: Vec<F32vec3>,
@@ -33,7 +35,11 @@ impl FlowField {
                 let ang = noise.get([i as f64 * 0.01, j as f64 * 0.01, 0.0]) * PI * 2.0;
                 let tx = ang.cos() as f32;
                 let ty = ang.sin() as f32;
-                grid.push(F32vec3 { position: [tx, ty, 0.0] } * 0.0001);
+                grid.push(
+                    F32vec3 {
+                        position: [tx, ty, 0.0],
+                    } * 0.0001,
+                );
             }
         }
         let num_parts = 1000;
@@ -46,11 +52,17 @@ impl FlowField {
             vertices.push(F32vec3 {
                 position: [x / 2.0, y / 2.0, 0.0],
             });
-            vertices.push(F32vec3 { position: [x, y, 0.0] });
+            vertices.push(F32vec3 {
+                position: [x, y, 0.0],
+            });
             let ang: f32 = rand.gen();
             let tx = ang.cos();
             let ty = ang.sin();
-            velocities.push(F32vec3 { position: [tx, ty, 0.0] } * 0.0001);
+            velocities.push(
+                F32vec3 {
+                    position: [tx, ty, 0.0],
+                } * 0.0001,
+            );
         }
         FlowField {
             grid,
@@ -65,9 +77,7 @@ impl FlowField {
                 index_type: PrimitiveType::LinesList,
                 id: 0,
             },
-            world_position: F32vec3 {
-                position: [0.0; 3],
-            },
+            world_position: F32vec3 { position: [0.0; 3] },
             rotation: 0.0,
         }
     }
