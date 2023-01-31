@@ -4,7 +4,7 @@ use rand::{thread_rng, Rng};
 use rayon::prelude::*;
 use shape::HasShape;
 use std::ops::{Index, IndexMut};
-use vertex::Attr;
+use vertex::{Attr, F32vec2};
 
 pub struct InstanceGroup<T>
 where
@@ -84,17 +84,12 @@ where
         &mut self.transform_buffer
     }
 
-    fn update_buffer(&mut self) {
-        self.transform_buffer.write(&self.transforms);
-    }
-
     fn update(&mut self) {
-        let index = thread_rng().gen_range(0..self.transforms.len());
-        self[index].rand();
+        // self.transforms.par_iter_mut().for_each(|p| {});
     }
 
     fn rotate(&mut self, angle: f32) {
-        self.transforms.par_iter_mut().for_each(|p| p.rotate(angle));
+        self.transforms.par_iter_mut().for_each(|p| p.rotateZ(angle));
     }
 
     fn set_pos(&mut self, x: f32, y: f32) {

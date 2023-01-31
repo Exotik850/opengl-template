@@ -48,12 +48,8 @@ impl HasPos for Object {
         &mut self.transform_buffer
     }
 
-    fn update_buffer(&mut self) {
-        self.transform_buffer.write(&self.transform);
-    }
-
     fn rotate(&mut self, angle: f32) {
-        self.transform[0].rotate(angle);
+        self.transform[0].rotateZ(angle);
     }
 
     fn set_pos(&mut self, x: f32, y: f32) {
@@ -70,7 +66,10 @@ pub trait HasPos {
     fn mut_data(&mut self) -> &mut [Attr];
     fn ref_buffer(&self) -> &VertexBuffer<Attr>;
     fn mut_buffer(&mut self) -> &mut VertexBuffer<Attr>;
-    fn update_buffer(&mut self);
+    fn update_buffers(&self) {
+        self.ref_buffer().write(self.ref_data());
+        self.ref_shape().update_vbo();
+    }
     fn update(&mut self) {}
     fn rotate(&mut self, angle: f32);
     fn set_pos(&mut self, x: f32, y: f32);
@@ -100,13 +99,12 @@ where
     fn ref_index(&self) -> &PrimitiveType {
         self.ref_shape().ref_index()
     }
-    fn get_id(&self) -> u32 {
+    fn get_id(&self) -> usize {
         self.ref_shape().get_id()
     }
 
-    fn draw(&self, target: &mut Frame, program: &Vec<Program>) {
-        self.ref_shape().update_vbo();
-        self.ref_buffer().write(self.ref_data());
+    fn draw(&self, target: &mut Frame, program: &Program) {
+        self.update_buffers();
         target
             .draw(
                 (
@@ -114,7 +112,7 @@ where
                     self.ref_buffer().per_instance().unwrap(),
                 ),
                 &NoIndices(*self.ref_shape().ref_index()),
-                &program[self.get_id() as usize],
+                &program,
                 &glium::uniforms::EmptyUniforms,
                 &Default::default(),
             )

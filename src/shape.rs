@@ -8,20 +8,20 @@ pub struct Shape {
     pub vertices: Vec<F32vec2>,
     pub vbo: VertexBuffer<F32vec2>,
     pub index_type: PrimitiveType,
-    pub id: u32,
+    pub id: usize,
 }
 
 impl Shape {
     // Default shape
     pub fn triangle(display: &Display) -> Shape {
         let vertex1 = F32vec2 {
-            position: [1.0, -1.0],
+            position: [1.0, -1.0, 0.0],
         } * 0.1;
         let vertex2 = F32vec2 {
-            position: [-1.0, -1.0],
+            position: [-1.0, -1.0, 0.0],
         } * 0.1;
         let vertex3 = F32vec2 {
-            position: [0.0, 1.0],
+            position: [0.0, 1.0, 0.0],
         } * 0.1;
         let vertices = vec![vertex1, vertex2, vertex3];
         Shape {
@@ -40,7 +40,7 @@ pub trait HasShape {
     fn mut_vertices(&mut self) -> &mut Vec<F32vec2>;
     fn ref_vbo(&self) -> &VertexBuffer<F32vec2>;
     fn ref_index(&self) -> &PrimitiveType;
-    fn get_id(&self) -> u32;
+    fn get_id(&self) -> usize;
     fn new_vbo(display: &Display, vertices: &Vec<F32vec2>) -> VertexBuffer<F32vec2> {
         VertexBuffer::new(display, &vertices).unwrap()
     }
@@ -48,7 +48,7 @@ pub trait HasShape {
         self.ref_vbo().write(self.ref_vertices())
     }
 
-    fn draw(&self, target: &mut Frame, programs: &Vec<Program>) {
+    fn draw(&self, target: &mut Frame, program: &Program) {
         self.update_vbo();
         let uniforms = uniform! {
             matrix: [
@@ -63,7 +63,7 @@ pub trait HasShape {
             .draw(
                 self.ref_vbo(),
                 &NoIndices(*self.ref_index()),
-                &programs[self.get_id() as usize],
+                &program,
                 &uniforms,
                 &Default::default(),
             )
@@ -85,7 +85,7 @@ impl HasShape for Shape {
     fn ref_index(&self) -> &PrimitiveType {
         &self.index_type
     }
-    fn get_id(&self) -> u32 {
+    fn get_id(&self) -> usize {
         self.id
     }
 }

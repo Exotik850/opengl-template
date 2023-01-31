@@ -11,24 +11,24 @@ use winit::event_loop::{ControlFlow, EventLoop};
 // The default shader that is stored in the engine
 pub const BASE_VSHADER: &str = r#"
         #version 140
-        in vec2 position;
-        in vec2 world_position;
+        in vec3 position;
+        in vec3 world_position;
         in mat4 rotation_matrix;
-        out vec2 my_attr;
+        out vec3 my_attr;
 
         void main() {
             my_attr = position;
-            vec4 pos = vec4(position , 0.0, 1.0) * rotation_matrix;
-            gl_Position = pos + vec4(world_position, 0.0, 1.0);
+            vec4 pos = vec4(position, 1.0) * rotation_matrix;
+            gl_Position = pos + vec4(world_position, 1.0);
         }
     "#;
 
 pub const BASE_FSHADER: &str = r#"
         #version 140
-        in vec2 my_attr;
+        in vec3 my_attr;
         out vec4 color;
         void main() {
-            color = vec4(my_attr, 0.0, 1.0);
+            color = vec4(my_attr, 1.0);
         }
     "#;
 
@@ -60,7 +60,7 @@ impl Updatable for Engine {
     // Set up an engine on a given event loop with predefined objects
     fn init(event_loop: &EventLoop<()>) -> Self::Type {
         let display = Self::default_display(event_loop);
-        let obj = InstanceGroup::new(Shape::triangle(&display), 100000, &display);
+        let obj = InstanceGroup::new(Shape::triangle(&display), 100, &display);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
         Self::new(vec![obj], programs, display)
@@ -105,6 +105,18 @@ pub trait Runnable<T>
 where
     T: HasPos,
 {
+    fn window_handle(&mut self, window_event: &WindowEvent, control_flow: &mut ControlFlow);
+    fn handle_events(&mut self, ev: &Event<()>, control_flow: &mut ControlFlow);
+    fn handle_keys(&mut self, _input: &KeyboardInput) {}
+    fn update(&mut self) {}
+    fn draw(&mut self);
+}
+
+impl<T, U> Runnable<T> for U
+where
+    U: Updatable<RefType = T>,
+    T: HasPos,
+{
     // Handle window closes and send keyboard inputs to key handler
     fn window_handle(&mut self, window_event: &WindowEvent, control_flow: &mut ControlFlow) {
         match window_event {
@@ -118,17 +130,6 @@ where
         }
     }
 
-    fn handle_events(&mut self, ev: &Event<()>, control_flow: &mut ControlFlow);
-    fn handle_keys(&mut self, _input: &KeyboardInput) {}
-    fn update(&mut self) {}
-    fn draw(&mut self);
-}
-
-impl<T, U> Runnable<T> for U
-where
-    U: Updatable<RefType = T>,
-    T: HasPos,
-{
     // Handle events to draw and update when window is done updating and drawing
     fn handle_events(&mut self, ev: &Event<()>, control_flow: &mut ControlFlow) {
         match ev {
@@ -168,7 +169,7 @@ where
         let objects = self.ref_objects();
         for s in objects.iter() {
             // Draw the object onto the frame with the given shader
-            s.draw(&mut target, programs);
+            s.draw(&mut target, &programs[s.get_id()]);
         }
 
         // Finish with the frame

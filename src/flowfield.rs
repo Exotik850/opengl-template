@@ -33,7 +33,7 @@ impl FlowField {
                 let ang = noise.get([i as f64 * 0.01, j as f64 * 0.01, 0.0]) * PI * 2.0;
                 let tx = ang.cos() as f32;
                 let ty = ang.sin() as f32;
-                grid.push(F32vec2 { position: [tx, ty] } * 0.0001);
+                grid.push(F32vec2 { position: [tx, ty, 0.0] } * 0.0001);
             }
         }
         let num_parts = 1000;
@@ -44,13 +44,13 @@ impl FlowField {
             let x: f32 = rand.gen_range(-2.0..2.0);
             let y: f32 = rand.gen_range(-2.0..2.0);
             vertices.push(F32vec2 {
-                position: [x / 2.0, y / 2.0],
+                position: [x / 2.0, y / 2.0, 0.0],
             });
-            vertices.push(F32vec2 { position: [x, y] });
+            vertices.push(F32vec2 { position: [x, y, 0.0] });
             let ang: f32 = rand.gen();
             let tx = ang.cos();
             let ty = ang.sin();
-            velocities.push(F32vec2 { position: [tx, ty] } * 0.0001);
+            velocities.push(F32vec2 { position: [tx, ty, 0.0] } * 0.0001);
         }
         FlowField {
             grid,
@@ -66,7 +66,7 @@ impl FlowField {
                 id: 0,
             },
             world_position: F32vec2 {
-                position: [0.0, 0.0],
+                position: [0.0; 3],
             },
             rotation: 0.0,
         }
