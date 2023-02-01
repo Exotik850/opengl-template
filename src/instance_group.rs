@@ -100,7 +100,7 @@ where
     fn rotateZ(&mut self, angle: f32) {
         self.transforms.par_iter_mut().for_each(|p| {
             p.rotate_y(angle);
-            p.rotate_z(-angle);
+            p.rotate_z(angle);
         });
     }
 }

@@ -22,6 +22,7 @@ impl Object {
         }
     }
 }
+
 impl HasPos for Object {
     type RefType = Shape;
     type Type = Object;
@@ -31,23 +32,18 @@ impl HasPos for Object {
     fn mut_shape(&mut self) -> &mut Self::RefType {
         &mut self.shape
     }
-
     fn ref_data(&self) -> &[Attr] {
         &self.transform
     }
-
     fn mut_data(&mut self) -> &mut [Attr] {
         &mut self.transform
     }
-
     fn ref_buffer(&self) -> &VertexBuffer<Attr> {
         &self.transform_buffer
     }
-
     fn mut_buffer(&mut self) -> &mut VertexBuffer<Attr> {
         &mut self.transform_buffer
     }
-
     fn rotateZ(&mut self, angle: f32) {
         self.transform[0].rotate_z(angle);
     }
@@ -97,7 +93,6 @@ where
     fn get_id(&self) -> usize {
         self.ref_shape().get_id()
     }
-
     fn draw(&self, target: &mut Frame, program: &Program, params: &DrawParameters) {
         self.update_buffers();
         let light = [-1.0, 0.4, 0.9f32];
