@@ -11,12 +11,13 @@ use winit::event_loop::{ControlFlow, EventLoop};
 pub const BASE_VSHADER: &str = r#"
         #version 140
         in vec3 position;
+        in vec3 normal;
         in vec3 world_position;
         in mat4 rotation_matrix;
-        out vec3 my_attr;
+        out vec3 v_normal;
 
         void main() {
-            my_attr = position;
+            v_normal = transpose(inverse(mat3(rotation_matrix))) * normal;
             vec4 pos = vec4(position, 1.0) * rotation_matrix;
             gl_Position = pos + vec4(world_position, 1.0);
         }
@@ -24,10 +25,14 @@ pub const BASE_VSHADER: &str = r#"
 
 pub const BASE_FSHADER: &str = r#"
         #version 140
-        in vec3 my_attr;
+        in vec3 v_normal;
+        uniform vec3 u_light;
         out vec4 color;
         void main() {
-            color = vec4(my_attr, 1.0);
+            float brightness = dot(normalize(v_normal), normalize(u_light));
+            vec3 dark_color = vec3(0.6, 0.0, 0.0);
+            vec3 regular_color = vec3(1.0, 0.0, 0.0);
+            color = vec4(mix(dark_color, regular_color, brightness), 1.0);
         }
     "#;
 
@@ -173,6 +178,7 @@ where
             },
             ..Default::default()
         };
+
         for s in objects.iter() {
             // Draw the object onto the frame with the given shader
             s.draw(&mut target, &programs[s.get_id()], &params);

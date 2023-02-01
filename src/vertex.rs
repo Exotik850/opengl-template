@@ -5,8 +5,9 @@ use std::ops;
 #[derive(Copy, Clone, Debug)]
 pub struct F32vec3 {
     pub position: [f32; 3],
+    pub normal: [f32; 3],
 }
-glium::implement_vertex!(F32vec3, position);
+glium::implement_vertex!(F32vec3, position, normal);
 
 #[derive(Copy, Clone, Debug)]
 pub struct Attr {
@@ -114,13 +115,11 @@ impl F32vec3 {
     }
 
     pub fn dot(&self, other: &Self) -> F32vec3 {
-        F32vec3 {
-            position: [
-                self.x() * other.x(),
-                self.y() * other.y(),
-                self.z() * other.z(),
-            ],
-        }
+        F32vec3::from([
+            self.x() * other.x(),
+            self.y() * other.y(),
+            self.z() * other.z(),
+        ])
     }
 
     pub fn dot_prod(&self, other: &Self) -> f32 {
@@ -128,19 +127,17 @@ impl F32vec3 {
     }
 
     pub fn cross(&self, other: &Self) -> F32vec3 {
-        F32vec3 {
-            position: [
-                self.y() * other.z() - self.z() * other.y(),
-                self.z() * other.x() - self.x() * other.z(),
-                self.x() * other.y() - self.y() * other.x(),
-            ],
-        }
+        F32vec3::from([
+            self.y() * other.z() - self.z() * other.y(),
+            self.z() * other.x() - self.x() * other.z(),
+            self.x() * other.y() - self.y() * other.x(),
+        ])
     }
 }
 
 impl Default for F32vec3 {
     fn default() -> Self {
-        Self { position: [0.0; 3] }
+        Self::from([0.0; 3])
     }
 }
 
@@ -152,26 +149,30 @@ impl Into<[f32; 3]> for F32vec3 {
 
 impl From<&[f32; 3]> for F32vec3 {
     fn from(value: &[f32; 3]) -> Self {
-        F32vec3 { position: *value }
+        F32vec3 {
+            position: *value,
+            normal: [0.0, 0.0, -1.0],
+        }
     }
 }
 
 impl From<[f32; 3]> for F32vec3 {
     fn from(value: [f32; 3]) -> Self {
-        F32vec3 { position: value }
+        F32vec3 {
+            position: value,
+            normal: [0.0, 0.0, -1.0],
+        }
     }
 }
 
 impl ops::Add for F32vec3 {
     type Output = F32vec3;
     fn add(self, other: Self) -> Self::Output {
-        F32vec3 {
-            position: [
-                self.x() + other.x(),
-                self.y() + other.y(),
-                self.z() + other.z(),
-            ],
-        }
+        F32vec3::from([
+            self.x() + other.x(),
+            self.y() + other.y(),
+            self.z() + other.z(),
+        ])
     }
 }
 
@@ -186,13 +187,11 @@ impl ops::AddAssign for F32vec3 {
 impl ops::Sub for F32vec3 {
     type Output = F32vec3;
     fn sub(self, other: Self) -> Self::Output {
-        F32vec3 {
-            position: [
-                self.position[0] - other.position[0],
-                self.position[1] - other.position[1],
-                self.position[2] - other.position[2],
-            ],
-        }
+        F32vec3::from([
+            self.position[0] - other.position[0],
+            self.position[1] - other.position[1],
+            self.position[2] - other.position[2],
+        ])
     }
 }
 
@@ -207,13 +206,11 @@ impl ops::SubAssign for F32vec3 {
 impl ops::Mul<f32> for F32vec3 {
     type Output = F32vec3;
     fn mul(self, rhs: f32) -> Self::Output {
-        F32vec3 {
-            position: [
-                self.position[0] * rhs,
-                self.position[1] * rhs,
-                self.position[2] * rhs,
-            ],
-        }
+        F32vec3::from([
+            self.position[0] * rhs,
+            self.position[1] * rhs,
+            self.position[2] * rhs,
+        ])
     }
 }
 
@@ -228,13 +225,11 @@ impl ops::MulAssign<f32> for F32vec3 {
 impl ops::Div<f32> for F32vec3 {
     type Output = F32vec3;
     fn div(self, rhs: f32) -> Self::Output {
-        F32vec3 {
-            position: [
-                self.position[0] / rhs,
-                self.position[1] / rhs,
-                self.position[2] / rhs,
-            ],
-        }
+        F32vec3::from([
+            self.position[0] / rhs,
+            self.position[1] / rhs,
+            self.position[2] / rhs,
+        ])
     }
 }
 

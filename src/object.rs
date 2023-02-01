@@ -100,6 +100,7 @@ where
 
     fn draw(&self, target: &mut Frame, program: &Program, params: &DrawParameters) {
         self.update_buffers();
+        let light = [-1.0, 0.4, 0.9f32];
         target
             .draw(
                 (
@@ -108,7 +109,7 @@ where
                 ),
                 &NoIndices(*self.ref_shape().ref_index()),
                 &program,
-                &glium::uniforms::EmptyUniforms,
+                &uniform! {u_light: light},
                 &params,
             )
             .unwrap();

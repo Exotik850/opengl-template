@@ -14,20 +14,29 @@ pub struct Shape {
 impl Shape {
     // Default shape
     pub fn triangle(display: &Display) -> Shape {
-        let vertex1 = F32vec3 {
-            position: [1.0, -1.0, 0.0],
-        } * 0.1;
-        let vertex2 = F32vec3 {
-            position: [-1.0, -1.0, 0.0],
-        } * 0.1;
-        let vertex3 = F32vec3 {
-            position: [0.0, 1.0, 0.0],
-        } * 0.1;
+        let vertex1 = F32vec3::from([1.0, -1.0, 0.0]) * 0.1;
+        let vertex2 = F32vec3::from([-1.0, -1.0, 0.0]) * 0.1;
+        let vertex3 = F32vec3::from([0.0, 1.0, 0.0]) * 0.1;
         let vertices = vec![vertex1, vertex2, vertex3];
         Shape {
             vertices: vertices.clone(),
             vbo: Shape::new_vbo(&display, &vertices),
             index_type: PrimitiveType::TrianglesList,
+            id: 0,
+        }
+    }
+
+    pub fn quad(display: &Display) -> Shape {
+        let vertices = vec![
+            F32vec3::from([-1.0, 1.0, 0.0]),
+            F32vec3::from([1.0, 1.0, 0.0]),
+            F32vec3::from([-1.0, -1.0, 0.0]),
+            F32vec3::from([1.0, -1.0, 0.0]),
+        ];
+        Shape {
+            vertices: vertices.clone(),
+            vbo: Shape::new_vbo(&display, &vertices),
+            index_type: PrimitiveType::TriangleStrip,
             id: 0,
         }
     }
