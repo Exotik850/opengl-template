@@ -64,7 +64,7 @@ impl Updatable for Engine {
     // Set up an engine on a given event loop with predefined objects
     fn init(event_loop: &EventLoop<()>) -> Self::Type {
         let display = Self::default_display(event_loop);
-        let obj = InstanceGroup::new(Shape::triangle(&display), 100, &display);
+        let obj = InstanceGroup::new(Shape::quad(&display), 100, &display);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
         Self {
@@ -165,7 +165,7 @@ where
         // Grab the target frame from the display
         let mut target = self.ref_display().draw();
         // Clear the background
-        target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
+        target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 2.0);
 
         // Use the program at the index of the id of each object
         let programs = self.ref_programs();

@@ -27,12 +27,15 @@ impl Shape {
     }
 
     pub fn quad(display: &Display) -> Shape {
-        let vertices = vec![
+        let mut vertices = vec![
             F32vec3::from([-1.0, 1.0, 0.0]),
             F32vec3::from([1.0, 1.0, 0.0]),
             F32vec3::from([-1.0, -1.0, 0.0]),
             F32vec3::from([1.0, -1.0, 0.0]),
         ];
+        for i in vertices.iter_mut() {
+            *i *= 0.1;
+        }
         Shape {
             vertices: vertices.clone(),
             vbo: Shape::new_vbo(&display, &vertices),

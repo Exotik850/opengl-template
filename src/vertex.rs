@@ -57,7 +57,7 @@ impl Attr {
         self.world_position[2]
     }
 
-    pub fn rotateZ(&mut self, ang: f32) {
+    pub fn rotate_z(&mut self, ang: f32) {
         let cos_theta = ang.cos();
         let sin_theta = ang.sin();
         for i in 0..4 {
@@ -65,6 +65,18 @@ impl Attr {
             let y = self.rotation_matrix[i][1];
             self.rotation_matrix[i][0] = cos_theta * x - sin_theta * y;
             self.rotation_matrix[i][1] = sin_theta * x + cos_theta * y;
+        }
+    }
+
+    pub fn rotate_y(&mut self, angle: f32) {
+        let cos_theta = angle.cos();
+        let sin_theta = angle.sin();
+
+        for i in 0..4 {
+            let x = self.rotation_matrix[i][0];
+            let z = self.rotation_matrix[i][2];
+            self.rotation_matrix[i][0] = cos_theta * x + sin_theta * z;
+            self.rotation_matrix[i][2] = -sin_theta * x + cos_theta * z;
         }
     }
 

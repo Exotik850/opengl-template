@@ -49,7 +49,7 @@ impl HasPos for Object {
     }
 
     fn rotateZ(&mut self, angle: f32) {
-        self.transform[0].rotateZ(angle);
+        self.transform[0].rotate_z(angle);
     }
 }
 
