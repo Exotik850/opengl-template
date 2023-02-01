@@ -160,14 +160,22 @@ where
         // Grab the target frame from the display
         let mut target = self.ref_display().draw();
         // Clear the background
-        target.clear_color(0.0, 0.0, 0.0, 1.0);
+        target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
         // Use the program at the index of the id of each object
         let programs = self.ref_programs();
         let objects = self.ref_objects();
+        let params = glium::DrawParameters {
+            depth: glium::Depth {
+                test: glium::draw_parameters::DepthTest::IfLess,
+                write: true,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
         for s in objects.iter() {
             // Draw the object onto the frame with the given shader
-            s.draw(&mut target, &programs[s.get_id()]);
+            s.draw(&mut target, &programs[s.get_id()], &params);
         }
 
         // Finish with the frame

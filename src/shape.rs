@@ -1,6 +1,6 @@
 use crate::vertex::F32vec3;
 use glium::index::{NoIndices, PrimitiveType};
-use glium::{uniform, Display, Frame, Program, Surface, VertexBuffer};
+use glium::{uniform, Display, DrawParameters, Frame, Program, Surface, VertexBuffer};
 use winit::event_loop::EventLoop;
 
 // Struct for handling the components of a primitive shape and drawing it to the screen
@@ -48,7 +48,7 @@ pub trait HasShape {
         self.ref_vbo().write(self.ref_vertices())
     }
 
-    fn draw(&self, target: &mut Frame, program: &Program) {
+    fn draw(&self, target: &mut Frame, program: &Program, params: &DrawParameters) {
         self.update_vbo();
         let uniforms = uniform! {
             matrix: [
@@ -65,7 +65,7 @@ pub trait HasShape {
                 &NoIndices(*self.ref_index()),
                 &program,
                 &uniforms,
-                &Default::default(),
+                &params,
             )
             .unwrap();
     }

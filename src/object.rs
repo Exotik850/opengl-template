@@ -1,7 +1,7 @@
 use glium::index::{NoIndices, PrimitiveType};
 use glium::program::Uniform;
 use glium::uniforms::UniformBuffer;
-use glium::{uniform, Display, Frame, Program, Surface, VertexBuffer};
+use glium::{uniform, Display, DrawParameters, Frame, Program, Surface, VertexBuffer};
 use shape::{HasShape, Shape};
 use vertex::{Attr, F32vec3};
 
@@ -98,7 +98,7 @@ where
         self.ref_shape().get_id()
     }
 
-    fn draw(&self, target: &mut Frame, program: &Program) {
+    fn draw(&self, target: &mut Frame, program: &Program, params: &DrawParameters) {
         self.update_buffers();
         target
             .draw(
@@ -109,7 +109,7 @@ where
                 &NoIndices(*self.ref_shape().ref_index()),
                 &program,
                 &glium::uniforms::EmptyUniforms,
-                &Default::default(),
+                &params,
             )
             .unwrap();
     }
