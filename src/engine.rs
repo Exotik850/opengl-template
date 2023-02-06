@@ -15,8 +15,11 @@ pub const BASE_VSHADER: &str = r#"
         in vec3 world_position;
         in mat4 rotation_matrix;
         out vec3 v_normal;
+        in vec4 color;
+        out vec4 v_col;
 
         void main() {
+            v_col = color;
             v_normal = transpose(inverse(mat3(rotation_matrix))) * normal;
             vec4 pos = vec4(position, 1.0) * rotation_matrix;
             gl_Position = pos + vec4(world_position, 1.0);
@@ -26,13 +29,14 @@ pub const BASE_VSHADER: &str = r#"
 pub const BASE_FSHADER: &str = r#"
         #version 140
         in vec3 v_normal;
+        in vec4 v_col;
         uniform vec3 u_light;
         out vec4 color;
         void main() {
             float brightness = dot(normalize(v_normal), normalize(u_light));
-            vec3 dark_color = vec3(0.6, 0.0, 0.0);
-            vec3 regular_color = vec3(1.0, 0.0, 0.0);
-            color = vec4(mix(dark_color, regular_color, brightness), 1.0);
+            vec4 dark_color = vec4(v_col.xyz * 0.6, v_col.w);
+            vec4 regular_color = v_col;
+            color = mix(dark_color, regular_color, brightness);
         }
     "#;
 
@@ -123,12 +127,8 @@ where
     // Handle window closes and send keyboard inputs to key handler
     fn window_handle(&mut self, window_event: &WindowEvent, control_flow: &mut ControlFlow) {
         match window_event {
-            WindowEvent::CloseRequested => {
-                *control_flow = ControlFlow::Exit;
-            }
-            WindowEvent::KeyboardInput { input, .. } => {
-                self.handle_keys(input);
-            }
+            WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+            WindowEvent::KeyboardInput { input, .. } => self.handle_keys(input),
             _ => (),
         }
     }
