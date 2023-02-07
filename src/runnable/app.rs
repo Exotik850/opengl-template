@@ -1,6 +1,6 @@
 use super::engine::Runnable;
-use glium::glutin::event_loop::EventLoop;
 use drawable::object::HasPos;
+use glium::glutin::event_loop::EventLoop;
 use std::any::Any;
 use std::cell::RefCell;
 use std::ops::Deref;

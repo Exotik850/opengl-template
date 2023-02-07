@@ -1,11 +1,11 @@
+use drawable::object::HasPos;
+use drawable::shape::Shape;
 use glium::index::PrimitiveType;
 use glium::{Display, VertexBuffer};
 use noise::{NoiseFn, Perlin};
-use std::f32::consts::PI;
-use rand::{RngCore, thread_rng};
+use rand::{thread_rng, RngCore};
 use rayon::prelude::*;
-use drawable::object::HasPos;
-use drawable::shape::Shape;
+use std::f32::consts::PI;
 use util::attribute::Attr;
 use util::bufferable::Bufferable;
 use util::vertex::F32vec3;
@@ -19,12 +19,12 @@ pub struct Landscape {
     transform_buffer: VertexBuffer<Attr>,
     noise: Perlin,
     time: f64,
-    dims: Dims
+    dims: Dims,
 }
 
 impl Landscape {
     pub fn default(display: &Display) -> Self {
-        let (cols, rows, res, nres) = (100, 100, 0.05, 0.5);
+        let (cols, rows, res, nres) = (250, 250, 0.0066, 1.0);
         let height = 1.0;
         let noise = Perlin::new(thread_rng().next_u32());
         let time = 0.0;
@@ -59,7 +59,7 @@ impl Landscape {
             transform_buffer,
             noise,
             time,
-            dims: Dims(cols, rows, res, nres)
+            dims: Dims(cols, rows, res, nres),
         }
     }
 }
@@ -96,12 +96,17 @@ impl HasPos for Landscape {
         let dims = self.dims.clone();
         let time = self.time;
         let noise = self.noise;
-        self.shape.vertices.par_iter_mut().chunks(2).enumerate().for_each(|(idx, mut verts)| {
-            let x = ((idx % dims.0 as usize) as f64 + 1.0) * dims.2;
-            let y = ((idx / dims.0 as usize) as f64 + 1.0) * dims.2;
-            verts[0].position[2] = noise.get([x, y, time]) as f32;
-            verts[1].position[2] = noise.get([x, y + dims.2 * dims.3, time]) as f32;
-        });
+        self.shape
+            .vertices
+            .par_iter_mut()
+            .chunks(2)
+            .enumerate()
+            .for_each(|(idx, mut verts)| {
+                let x = ((idx % dims.0 as usize) as f64 + 1.0) * dims.2;
+                let y = ((idx / dims.0 as usize) as f64 + 1.0) * dims.2;
+                verts[0].position[2] = noise.get([x, y, time]) as f32;
+                verts[1].position[2] = noise.get([x, y + dims.2 * dims.3, time]) as f32;
+            });
         self.time += 0.01;
     }
 

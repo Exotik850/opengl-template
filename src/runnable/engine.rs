@@ -1,8 +1,9 @@
-use glium::{glutin, Display, Program, Surface};
 use drawable::instance_group::InstanceGroup;
-use landscape::Landscape;
 use drawable::object::HasPos;
 use drawable::shape::{HasShape, Shape};
+use glium::{glutin, Display, Program, Surface};
+use landscape::Landscape;
+use std::f32::consts::PI;
 use std::time::SystemTime;
 use winit::dpi::LogicalSize;
 use winit::event::{Event, KeyboardInput, WindowEvent};
@@ -75,7 +76,10 @@ impl Updatable for Engine {
         let obj = Landscape::default(&display);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
-        println!("Init time: {:?}", SystemTime::now().duration_since(start).unwrap());
+        println!(
+            "Init time: {:?}",
+            SystemTime::now().duration_since(start).unwrap()
+        );
         Self {
             objects: vec![obj],
             programs,
@@ -188,17 +192,17 @@ where
             let (width, height) = target.get_dimensions();
             let aspect_ratio = height as f32 / width as f32;
 
-            let fov: f32 = 3.141592 / 3.0;
+            let fov: f32 = PI / 2.0;
             let zfar = 1024.0;
             let znear = 0.1;
 
             let f = 1.0 / (fov / 2.0).tan();
 
             [
-                [f *   aspect_ratio   ,    0.0,              0.0              ,   0.0],
-                [         0.0         ,     f ,              0.0              ,   0.0],
-                [         0.0         ,    0.0,  (zfar+znear)/(zfar-znear)    ,   1.0],
-                [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],
+                [f * aspect_ratio, 0.0, 0.0, 0.0],
+                [0.0, f, 0.0, 0.0],
+                [0.0, 0.0, (zfar + znear) / (zfar - znear), 1.0],
+                [0.0, 0.0, -(2.0 * zfar * znear) / (zfar - znear), 0.0],
             ]
         };
 

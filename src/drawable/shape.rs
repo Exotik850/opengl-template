@@ -1,7 +1,7 @@
-use util::vertex::F32vec3;
 use glium::index::{NoIndices, PrimitiveType};
 use glium::{uniform, Display, DrawParameters, Frame, Program, Surface, VertexBuffer};
 use util::bufferable::Bufferable;
+use util::vertex::F32vec3;
 
 // Struct for handling the components of a primitive shape and drawing it to the screen
 pub struct Shape {
@@ -71,7 +71,13 @@ pub trait HasShape {
         self.ref_vbo().write(self.ref_vertices())
     }
 
-    fn draw(&self, target: &mut Frame, program: &Program, params: &DrawParameters, perspective: [[f32; 4]; 4]) {
+    fn draw(
+        &self,
+        target: &mut Frame,
+        program: &Program,
+        params: &DrawParameters,
+        perspective: [[f32; 4]; 4],
+    ) {
         self.update_vbo();
         let uniforms = uniform! {
             u_light: [-1.0, 0.4, 0.9f32],

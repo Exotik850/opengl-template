@@ -1,7 +1,6 @@
 use glium::{Display, Vertex, VertexBuffer};
 use rand::{thread_rng, Rng};
 
-
 #[derive(Copy, Clone, Debug)]
 pub struct Attr {
     pub world_position: [f32; 3],
@@ -103,4 +102,3 @@ impl Attr {
         a
     }
 }
-

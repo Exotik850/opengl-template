@@ -1,10 +1,10 @@
+use drawable::shape::{HasShape, Shape};
 use glium::index::{NoIndices, PrimitiveType};
 use glium::program::Uniform;
 use glium::uniforms::UniformBuffer;
 use glium::{uniform, Display, DrawParameters, Frame, Program, Surface, VertexBuffer};
 use util::attribute::Attr;
 use util::vertex::F32vec3;
-use drawable::shape::{HasShape, Shape};
 
 pub struct Object {
     pub shape: Shape,
@@ -94,7 +94,13 @@ where
     fn get_id(&self) -> usize {
         self.ref_shape().get_id()
     }
-    fn draw(&self, target: &mut Frame, program: &Program, params: &DrawParameters, perspective: [[f32; 4]; 4]) {
+    fn draw(
+        &self,
+        target: &mut Frame,
+        program: &Program,
+        params: &DrawParameters,
+        perspective: [[f32; 4]; 4],
+    ) {
         self.update_buffers();
         target
             .draw(

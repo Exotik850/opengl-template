@@ -8,7 +8,6 @@ pub struct F32vec3 {
 }
 glium::implement_vertex!(F32vec3, position, normal);
 
-
 #[allow(dead_code)]
 impl F32vec3 {
     pub fn x(&self) -> f32 {

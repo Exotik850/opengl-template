@@ -1,7 +1,7 @@
-mod landscape;
-mod util;
-mod runnable;
 mod drawable;
+mod landscape;
+mod runnable;
+mod util;
 
 extern crate glium;
 extern crate noise;

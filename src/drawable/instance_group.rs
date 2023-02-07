@@ -1,8 +1,8 @@
-use glium::{Display, VertexBuffer};
 use super::object::HasPos;
+use super::shape::HasShape;
+use glium::{Display, VertexBuffer};
 use rand::Rng;
 use rayon::prelude::*;
-use super::shape::HasShape;
 use std::ops::{Index, IndexMut};
 use util::attribute::Attr;
 
@@ -22,7 +22,7 @@ where
     pub fn new(shape: T, num: usize, display: &Display) -> Self {
         let mut transforms = vec![Attr::default(); num];
         transforms.iter_mut().for_each(|p| p.randomize());
-        
+
         let transform_buffer = VertexBuffer::dynamic(display, &transforms).unwrap();
         InstanceGroup {
             shape,
