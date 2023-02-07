@@ -1,5 +1,6 @@
+use glium::{Display, Vertex, VertexBuffer};
 use rand::{thread_rng, Rng};
-use std::fmt::{Display, Formatter};
+use std::fmt::{Display as Disp, Formatter};
 use std::ops;
 
 #[derive(Copy, Clone, Debug)]
@@ -15,6 +16,17 @@ pub struct Attr {
     pub rotation_matrix: [[f32; 4]; 4],
 }
 glium::implement_vertex!(Attr, world_position, rotation_matrix);
+
+pub trait Bufferable {
+    type Type: Vertex;
+    fn new_vbo(display: &Display, vertices: &[Self::Type]) -> VertexBuffer<Self::Type> {
+        VertexBuffer::new(display, &vertices).unwrap()
+    }
+}
+
+impl<T: Vertex> Bufferable for T {
+    type Type = T;
+}
 
 impl Default for Attr {
     fn default() -> Self {
@@ -77,6 +89,18 @@ impl Attr {
             let z = self.rotation_matrix[i][2];
             self.rotation_matrix[i][0] = cos_theta * x + sin_theta * z;
             self.rotation_matrix[i][2] = -sin_theta * x + cos_theta * z;
+        }
+    }
+
+    pub fn rotate_x(&mut self, angle: f32) {
+        let cos_theta = angle.cos();
+        let sin_theta = angle.sin();
+
+        for i in 0..4 {
+            let y = self.rotation_matrix[i][1];
+            let z = self.rotation_matrix[i][2];
+            self.rotation_matrix[i][1] = cos_theta * y - sin_theta * z;
+            self.rotation_matrix[i][2] = sin_theta * y + cos_theta * z;
         }
     }
 
@@ -253,7 +277,7 @@ impl ops::DivAssign<f32> for F32vec3 {
     }
 }
 
-impl Display for F32vec3 {
+impl Disp for F32vec3 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,

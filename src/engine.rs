@@ -1,5 +1,6 @@
 use glium::{glutin, Display, Program, Surface};
 use instance_group::InstanceGroup;
+use landscape::Landscape;
 use object::HasPos;
 use shape::{HasShape, Shape};
 use std::time::SystemTime;
@@ -37,7 +38,7 @@ pub const BASE_FSHADER: &str = r#"
     "#;
 
 pub struct Engine {
-    pub objects: Vec<InstanceGroup<Shape>>,
+    pub objects: Vec<Landscape>,
     pub programs: Vec<Program>,
     pub display: Display,
 }
@@ -45,7 +46,7 @@ pub struct Engine {
 // Trait for structs that hold a vector of objects that implement HasPos
 // as well as a vector of programs (shaders) to draw the objects
 impl Updatable for Engine {
-    type RefType = InstanceGroup<Shape>;
+    type RefType = Landscape;
     type Type = Engine;
 
     fn mut_objects(&mut self) -> &mut Vec<Self::RefType> {
@@ -64,7 +65,7 @@ impl Updatable for Engine {
     // Set up an engine on a given event loop with predefined objects
     fn init(event_loop: &EventLoop<()>) -> Self::Type {
         let display = Self::default_display(event_loop);
-        let obj = InstanceGroup::new(Shape::quad(&display), 100, &display);
+        let obj = Landscape::default(&display);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
         Self {
@@ -153,7 +154,7 @@ where
         let start = SystemTime::now();
         let objects = self.mut_objects();
         objects.iter_mut().for_each(|obj| {
-            obj.rotateZ(0.01);
+            obj.rotateZ(0.005);
             obj.update()
         });
         println!("Update time: {:?}", start.elapsed().unwrap());
@@ -165,7 +166,7 @@ where
         // Grab the target frame from the display
         let mut target = self.ref_display().draw();
         // Clear the background
-        target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 2.0);
+        target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
         // Use the program at the index of the id of each object
         let programs = self.ref_programs();

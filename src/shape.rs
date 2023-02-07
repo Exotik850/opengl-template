@@ -1,6 +1,7 @@
 use crate::vertex::F32vec3;
 use glium::index::{NoIndices, PrimitiveType};
 use glium::{uniform, Display, DrawParameters, Frame, Program, Surface, VertexBuffer};
+use vertex::Bufferable;
 use winit::event_loop::EventLoop;
 
 // Struct for handling the components of a primitive shape and drawing it to the screen
@@ -20,7 +21,7 @@ impl Shape {
         let vertices = vec![vertex1, vertex2, vertex3];
         Shape {
             vertices: vertices.clone(),
-            vbo: Shape::new_vbo(&display, &vertices),
+            vbo: F32vec3::new_vbo(&display, &vertices),
             index_type: PrimitiveType::TrianglesList,
             id: 0,
         }
@@ -38,8 +39,21 @@ impl Shape {
         }
         Shape {
             vertices: vertices.clone(),
-            vbo: Shape::new_vbo(&display, &vertices),
+            vbo: F32vec3::new_vbo(&display, &vertices),
             index_type: PrimitiveType::TriangleStrip,
+            id: 0,
+        }
+    }
+
+    pub fn from_vertices(
+        vertices: &Vec<F32vec3>,
+        index_type: PrimitiveType,
+        display: &Display,
+    ) -> Shape {
+        Shape {
+            vertices: vertices.clone(),
+            vbo: F32vec3::new_vbo(&display, &vertices),
+            index_type,
             id: 0,
         }
     }
@@ -53,9 +67,7 @@ pub trait HasShape {
     fn ref_vbo(&self) -> &VertexBuffer<F32vec3>;
     fn ref_index(&self) -> &PrimitiveType;
     fn get_id(&self) -> usize;
-    fn new_vbo(display: &Display, vertices: &Vec<F32vec3>) -> VertexBuffer<F32vec3> {
-        VertexBuffer::new(display, &vertices).unwrap()
-    }
+
     fn update_vbo(&self) {
         self.ref_vbo().write(self.ref_vertices())
     }
