@@ -21,9 +21,8 @@ where
 {
     pub fn new(shape: T, num: usize, display: &Display) -> Self {
         let mut transforms = vec![Attr::default(); num];
-        for transform in &mut transforms {
-            transform.rand()
-        }
+        transforms.iter_mut().for_each(|p| p.randomize());
+        
         let transform_buffer = VertexBuffer::dynamic(display, &transforms).unwrap();
         InstanceGroup {
             shape,

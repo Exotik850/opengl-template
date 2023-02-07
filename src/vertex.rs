@@ -14,8 +14,9 @@ glium::implement_vertex!(F32vec3, position, normal);
 pub struct Attr {
     pub world_position: [f32; 3],
     pub rotation_matrix: [[f32; 4]; 4],
+    pub color: [f32; 4],
 }
-glium::implement_vertex!(Attr, world_position, rotation_matrix);
+glium::implement_vertex!(Attr, world_position, rotation_matrix, color);
 
 pub trait Bufferable {
     type Type: Vertex;
@@ -37,9 +38,11 @@ impl Default for Attr {
             [0.0, 0.0, 1.0, 0.0],
             [0.0, 0.0, 0.0, 1.0],
         ];
+        let color = [1.0, 0.0, 0.0, 1.0];
         Attr {
             world_position,
             rotation_matrix,
+            color,
         }
     }
 }
@@ -104,10 +107,19 @@ impl Attr {
         }
     }
 
-    pub fn rand(&mut self) {
-        self.world_position.iter_mut().for_each(|p| {
-            *p = thread_rng().gen_range(-2.0..2.0);
-        });
+    pub fn randomize(&mut self) {
+        self.world_position
+            .iter_mut()
+            .for_each(|p| *p = thread_rng().gen_range(-2.0..2.0));
+        self.color
+            .iter_mut()
+            .for_each(|p| *p = thread_rng().gen_range(0.0..1.0));
+    }
+
+    pub fn random() -> Self {
+        let mut a = Attr::default();
+        a.randomize();
+        a
     }
 }
 
