@@ -85,7 +85,7 @@ impl From<&[f32; 3]> for F32vec3 {
     fn from(value: &[f32; 3]) -> Self {
         F32vec3 {
             position: *value,
-            normal: [0.0, 0.0, -1.0],
+            normal: [0.0, 0.0, 1.0],
         }
     }
 }
@@ -94,7 +94,7 @@ impl From<[f32; 3]> for F32vec3 {
     fn from(value: [f32; 3]) -> Self {
         F32vec3 {
             position: value,
-            normal: [0.0, 0.0, -1.0],
+            normal: [0.0, 0.0, 1.0],
         }
     }
 }

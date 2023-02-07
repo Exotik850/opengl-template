@@ -94,9 +94,8 @@ where
     fn get_id(&self) -> usize {
         self.ref_shape().get_id()
     }
-    fn draw(&self, target: &mut Frame, program: &Program, params: &DrawParameters) {
+    fn draw(&self, target: &mut Frame, program: &Program, params: &DrawParameters, perspective: [[f32; 4]; 4]) {
         self.update_buffers();
-        let light = [-1.0, 0.4, 0.9f32];
         target
             .draw(
                 (
@@ -105,7 +104,7 @@ where
                 ),
                 &NoIndices(*self.ref_shape().ref_index()),
                 &program,
-                &uniform! {u_light: light},
+                &uniform! {u_light: [-1.0, 0.4, 0.9f32], perspective: perspective},
                 &params,
             )
             .unwrap();

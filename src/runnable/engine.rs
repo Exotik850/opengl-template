@@ -15,14 +15,15 @@ pub const BASE_VSHADER: &str = r#"
         in vec3 normal;
         in vec3 world_position;
         in mat4 rotation_matrix;
-        out vec3 v_normal;
         in vec4 color;
+        uniform mat4 perspective;
+        out vec3 v_normal;
         out vec4 v_col;
 
         void main() {
             v_col = color;
             v_normal = transpose(inverse(mat3(rotation_matrix))) * normal;
-            vec4 pos = vec4(position, 1.0) * rotation_matrix;
+            vec4 pos = vec4(position, 1.0) * rotation_matrix * perspective;
             gl_Position = pos + vec4(world_position, 1.0);
         }
     "#;
@@ -69,10 +70,12 @@ impl Updatable for Engine {
 
     // Set up an engine on a given event loop with predefined objects
     fn init(event_loop: &EventLoop<()>) -> Self::Type {
+        let start = SystemTime::now();
         let display = Self::default_display(event_loop);
         let obj = Landscape::default(&display);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
+        println!("Init time: {:?}", SystemTime::now().duration_since(start).unwrap());
         Self {
             objects: vec![obj],
             programs,
@@ -201,7 +204,7 @@ where
 
         for s in objects.iter() {
             // Draw the object onto the frame with the given shader
-            s.draw(&mut target, &programs[s.get_id()], &params);
+            s.draw(&mut target, &programs[s.get_id()], &params, perspective);
         }
 
         // Finish with the frame

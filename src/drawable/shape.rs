@@ -71,16 +71,11 @@ pub trait HasShape {
         self.ref_vbo().write(self.ref_vertices())
     }
 
-    fn draw(&self, target: &mut Frame, program: &Program, params: &DrawParameters) {
+    fn draw(&self, target: &mut Frame, program: &Program, params: &DrawParameters, perspective: [[f32; 4]; 4]) {
         self.update_vbo();
         let uniforms = uniform! {
-            matrix: [
-                [1.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0, 0.0],
-                [ 0.0 , 0.0, 0.0, 1.0f32],
-            ],
-            world_position: [0.0f32, 0.0]
+            u_light: [-1.0, 0.4, 0.9f32],
+            perspective: perspective
         };
         target
             .draw(
