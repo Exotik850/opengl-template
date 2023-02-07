@@ -1,8 +1,7 @@
-use crate::vertex::F32vec3;
+use util::vertex::F32vec3;
 use glium::index::{NoIndices, PrimitiveType};
 use glium::{uniform, Display, DrawParameters, Frame, Program, Surface, VertexBuffer};
-use vertex::Bufferable;
-use winit::event_loop::EventLoop;
+use util::bufferable::Bufferable;
 
 // Struct for handling the components of a primitive shape and drawing it to the screen
 pub struct Shape {

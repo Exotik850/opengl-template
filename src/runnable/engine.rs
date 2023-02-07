@@ -1,8 +1,8 @@
 use glium::{glutin, Display, Program, Surface};
-use instance_group::InstanceGroup;
+use drawable::instance_group::InstanceGroup;
 use landscape::Landscape;
-use object::HasPos;
-use shape::{HasShape, Shape};
+use drawable::object::HasPos;
+use drawable::shape::{HasShape, Shape};
 use std::time::SystemTime;
 use winit::dpi::LogicalSize;
 use winit::event::{Event, KeyboardInput, WindowEvent};
@@ -35,7 +35,8 @@ pub const BASE_FSHADER: &str = r#"
         out vec4 color;
         void main() {
             float brightness = dot(normalize(v_normal), normalize(u_light));
-            vec4 dark_color = vec4(v_col.xyz * 0.6, v_col.w);
+            // vec4 dark_color = vec4(v_col.xyz * 0.6, v_col.w);
+            vec4 dark_color = v_col;
             vec4 regular_color = v_col;
             color = mix(dark_color, regular_color, brightness);
         }
@@ -154,7 +155,7 @@ where
         let start = SystemTime::now();
         let objects = self.mut_objects();
         objects.iter_mut().for_each(|obj| {
-            obj.rotateZ(0.005);
+            obj.rotate_z(0.005);
             obj.update()
         });
         println!("Update time: {:?}", start.elapsed().unwrap());
@@ -178,6 +179,24 @@ where
                 ..Default::default()
             },
             ..Default::default()
+        };
+
+        let perspective = {
+            let (width, height) = target.get_dimensions();
+            let aspect_ratio = height as f32 / width as f32;
+
+            let fov: f32 = 3.141592 / 3.0;
+            let zfar = 1024.0;
+            let znear = 0.1;
+
+            let f = 1.0 / (fov / 2.0).tan();
+
+            [
+                [f *   aspect_ratio   ,    0.0,              0.0              ,   0.0],
+                [         0.0         ,     f ,              0.0              ,   0.0],
+                [         0.0         ,    0.0,  (zfar+znear)/(zfar-znear)    ,   1.0],
+                [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],
+            ]
         };
 
         for s in objects.iter() {

@@ -1,10 +1,7 @@
-mod app;
-mod engine;
-mod instance_group;
 mod landscape;
-mod object;
-mod shape;
-mod vertex;
+mod util;
+mod runnable;
+mod drawable;
 
 extern crate glium;
 extern crate noise;
@@ -12,8 +9,8 @@ extern crate rand;
 extern crate rayon;
 extern crate winit;
 
-use app::App;
-use engine::{Engine, Updatable};
+use runnable::app::App;
+use runnable::engine::{Engine, Updatable};
 
 fn main() {
     let mut app = App::default_app();

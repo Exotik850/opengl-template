@@ -1,10 +1,13 @@
 use glium::index::PrimitiveType;
 use glium::{Display, VertexBuffer};
 use noise::{NoiseFn, Perlin};
-use object::HasPos;
-use shape::Shape;
 use std::f32::consts::PI;
-use vertex::{Attr, Bufferable, F32vec3};
+use rand::{RngCore, thread_rng};
+use drawable::object::HasPos;
+use drawable::shape::Shape;
+use util::attribute::Attr;
+use util::bufferable::Bufferable;
+use util::vertex::F32vec3;
 
 pub struct Landscape {
     shape: Shape,
@@ -18,17 +21,17 @@ impl Landscape {
     pub fn default(display: &Display) -> Self {
         let (cols, rows, res, nres) = (100, 100, 0.05, 0.5);
         let height = 1.0;
-        let noise = Perlin::new(0);
+        let noise = Perlin::new(thread_rng().next_u32());
         let mut vertices: Vec<F32vec3> = vec![];
         let time = 0.0;
         for i in -cols / 2..cols / 2 {
             for j in -rows / 2..rows / 2 {
                 let (x, y) = (i as f64 * res, j as f64 * res);
                 let z = noise.get([x * nres, y * nres, time]) * height;
-                let z2 = noise.get([x * nres, (y + 1.0) * nres, time]) * height;
+                let z2 = noise.get([x * nres, (y + res) * nres, time]) * height;
                 // let z3 = noise.get([(x + 1.0) * nres, y * nres, time]) * height;
                 vertices.push(F32vec3::from([x as f32, y as f32, z as f32]));
-                vertices.push(F32vec3::from([x as f32, (y + 1.0) as f32, z2 as f32]));
+                vertices.push(F32vec3::from([x as f32, (y + res) as f32, z2 as f32]));
                 // vertices.push(F32vec3::from([(x + 1.0) as f32, y as f32, z as f32]));
             }
         }
@@ -74,7 +77,7 @@ impl HasPos for Landscape {
         &mut self.transform_buffer
     }
 
-    fn rotateZ(&mut self, angle: f32) {
+    fn rotate_z(&mut self, angle: f32) {
         self.transform[0].rotate_z(angle);
     }
-} //
+}

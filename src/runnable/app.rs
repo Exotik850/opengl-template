@@ -1,10 +1,9 @@
-use engine::Runnable;
+use super::engine::Runnable;
 use glium::glutin::event_loop::EventLoop;
-use object::HasPos;
+use drawable::object::HasPos;
 use std::any::Any;
 use std::cell::RefCell;
 use std::ops::Deref;
-use std::time::SystemTime;
 
 // Holds the event loop that will run the engine
 pub struct App {

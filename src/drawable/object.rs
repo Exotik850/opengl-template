@@ -2,8 +2,9 @@ use glium::index::{NoIndices, PrimitiveType};
 use glium::program::Uniform;
 use glium::uniforms::UniformBuffer;
 use glium::{uniform, Display, DrawParameters, Frame, Program, Surface, VertexBuffer};
-use shape::{HasShape, Shape};
-use vertex::{Attr, F32vec3};
+use util::attribute::Attr;
+use util::vertex::F32vec3;
+use drawable::shape::{HasShape, Shape};
 
 pub struct Object {
     pub shape: Shape,
@@ -44,7 +45,7 @@ impl HasPos for Object {
     fn mut_buffer(&mut self) -> &mut VertexBuffer<Attr> {
         &mut self.transform_buffer
     }
-    fn rotateZ(&mut self, angle: f32) {
+    fn rotate_z(&mut self, angle: f32) {
         self.transform[0].rotate_z(angle);
     }
 }
@@ -63,7 +64,7 @@ pub trait HasPos {
         self.ref_shape().update_vbo();
     }
     fn update(&mut self) {}
-    fn rotateZ(&mut self, angle: f32);
+    fn rotate_z(&mut self, angle: f32);
     fn x(&self) -> f32 {
         self.ref_data()[0].x()
     }

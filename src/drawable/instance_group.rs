@@ -1,10 +1,10 @@
 use glium::{Display, VertexBuffer};
-use object::HasPos;
+use super::object::HasPos;
 use rand::Rng;
 use rayon::prelude::*;
-use shape::HasShape;
+use super::shape::HasShape;
 use std::ops::{Index, IndexMut};
-use vertex::Attr;
+use util::attribute::Attr;
 
 pub struct InstanceGroup<T>
 where
@@ -90,13 +90,13 @@ where
         //     // if v.mag() > 4.0 * 2.0f32.sqrt() {
         //     //     panic!("Out of bounds! {:?}", p);
         //     // }
-        //     // v.rotateZ(PI);
+        //     // v.rotate_z(PI);
         //     v *= 0.0001;
         //     p.translate(v.x(), v.y(), v.z());
         // });
     }
 
-    fn rotateZ(&mut self, angle: f32) {
+    fn rotate_z(&mut self, angle: f32) {
         self.transforms.par_iter_mut().for_each(|p| {
             p.rotate_y(angle);
             p.rotate_z(angle);
