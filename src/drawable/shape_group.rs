@@ -1,6 +1,7 @@
 use drawable::instance_group::HasPos;
 use drawable::shape::HasShape;
-use glium::VertexBuffer;
+use glium::{DrawParameters, Frame, Program, Surface, uniform, VertexBuffer};
+use glium::index::NoIndices;
 use util::attribute::Attr;
 
 struct ShapeGroup<T>
@@ -20,11 +21,11 @@ where
     type RefType = T;
     type Type = ShapeGroup<T>;
 
-    fn ref_shape(&self) -> &Self::RefType {
+    fn ref_shape(&self) -> Box<[&Self::RefType]> {
         todo!()
     }
 
-    fn mut_shape(&mut self) -> &mut Self::RefType {
+    fn mut_shape(&mut self) -> Box<[&mut Self::RefType]> {
         todo!()
     }
 
@@ -46,5 +47,30 @@ where
 
     fn rotate_z(&mut self, angle: f32) {
         todo!()
+    }
+
+    fn draw(
+        &self,
+        target: &mut Frame,
+        program: &Program,
+        params: &DrawParameters,
+        perspective: [[f32; 4]; 4],
+    ) {
+        self.update_buffers();
+        // for &i in self.ids.iter().zip() {
+        //
+        // }
+        target
+            .draw(
+                (
+                    self.ref_shape()[0].ref_vbo(),
+                    self.ref_buffer().per_instance().unwrap(),
+                ),
+                &NoIndices(*self.ref_shape()[0].ref_index()),
+                &program,
+                &uniform! {u_light: [-1.0, 0.4, 0.9f32], perspective: perspective},
+                &params,
+            )
+            .unwrap();
     }
 }

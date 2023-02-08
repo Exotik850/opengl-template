@@ -68,12 +68,12 @@ impl HasPos for Landscape {
     type RefType = Shape;
     type Type = Landscape;
 
-    fn ref_shape(&self) -> &Self::RefType {
-        &self.shape
+    fn ref_shape(&self) -> Box<[&Shape]> {
+        Box::from([&self.shape])
     }
 
-    fn mut_shape(&mut self) -> &mut Self::RefType {
-        &mut self.shape
+    fn mut_shape(&mut self) -> Box<[&mut Shape]> {
+        Box::from([&mut self.shape])
     }
 
     fn ref_data(&self) -> &[Attr] {

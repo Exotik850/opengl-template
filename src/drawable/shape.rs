@@ -66,32 +66,8 @@ pub trait HasShape {
     fn ref_vbo(&self) -> &VertexBuffer<F32vec3>;
     fn ref_index(&self) -> &PrimitiveType;
     fn get_id(&self) -> usize;
-
     fn update_vbo(&self) {
         self.ref_vbo().write(self.ref_vertices())
-    }
-
-    fn draw(
-        &self,
-        target: &mut Frame,
-        program: &Program,
-        params: &DrawParameters,
-        perspective: [[f32; 4]; 4],
-    ) {
-        self.update_vbo();
-        let uniforms = uniform! {
-            u_light: [-1.0, 0.4, 0.9f32],
-            perspective: perspective
-        };
-        target
-            .draw(
-                self.ref_vbo(),
-                &NoIndices(*self.ref_index()),
-                &program,
-                &uniforms,
-                &params,
-            )
-            .unwrap();
     }
 }
 

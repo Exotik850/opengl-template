@@ -8,6 +8,7 @@ extern crate noise;
 extern crate rand;
 extern crate rayon;
 extern crate winit;
+extern crate core;
 
 use runnable::app::App;
 use runnable::engine::{Engine, Updatable};
