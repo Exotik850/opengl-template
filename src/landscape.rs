@@ -1,4 +1,4 @@
-use drawable::object::HasPos;
+use drawable::instance_group::HasPos;
 use drawable::shape::Shape;
 use glium::index::PrimitiveType;
 use glium::{Display, VertexBuffer};
@@ -24,7 +24,7 @@ pub struct Landscape {
 
 impl Landscape {
     pub fn default(display: &Display) -> Self {
-        let (cols, rows, res, nres) = (250, 250, 0.0066, 1.0);
+        let (cols, rows, res, nres) = (100, 100, 0.01, 1.0);
         let height = 1.0;
         let noise = Perlin::new(thread_rng().next_u32());
         let time = 0.0;

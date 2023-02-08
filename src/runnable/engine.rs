@@ -1,5 +1,4 @@
-use drawable::instance_group::InstanceGroup;
-use drawable::object::HasPos;
+use drawable::instance_group::{HasPos, InstanceGroup};
 use drawable::shape::{HasShape, Shape};
 use glium::{glutin, Display, Program, Surface};
 use landscape::Landscape;
