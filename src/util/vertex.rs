@@ -1,5 +1,6 @@
 use std::fmt::{Display as Disp, Formatter};
 use std::ops;
+use util::attribute::Attr;
 
 #[derive(Copy, Clone, Debug)]
 pub struct F32vec3 {
@@ -94,6 +95,24 @@ impl From<[f32; 3]> for F32vec3 {
         F32vec3 {
             position: value,
             normal: [0.0, 0.0, 1.0],
+        }
+    }
+}
+
+impl From<&[f32; 3]> for Attr {
+    fn from(value: &[f32; 3]) -> Self {
+        Attr {
+            world_position: *value,
+            ..Default::default()
+        }
+    }
+}
+
+impl From<[f32; 3]> for Attr {
+    fn from(value: [f32; 3]) -> Self {
+        Attr {
+            world_position: value,
+            ..Default::default()
         }
     }
 }

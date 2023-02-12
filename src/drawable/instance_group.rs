@@ -15,6 +15,7 @@ where
     transforms: BufferObject<Attr>,
 }
 
+#[allow(dead_code)]
 impl<T> InstanceGroup<T>
 where
     T: HasShape,

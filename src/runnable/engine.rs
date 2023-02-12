@@ -1,4 +1,3 @@
-use drawable::shape::Shape;
 use drawable::Drawable;
 use glium::{glutin, Display, Program, Surface};
 use landscape::Landscape;
@@ -161,7 +160,7 @@ where
         let start = SystemTime::now();
         let objects = self.mut_objects();
         objects.iter_mut().for_each(|obj| {
-            obj.rotate_z(0.005);
+            // obj.rotate_z(0.005);
             obj.update()
         });
         println!("Update time: {:?}", start.elapsed().unwrap());

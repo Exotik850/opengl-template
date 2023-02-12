@@ -1,4 +1,3 @@
-pub(crate) mod drawable;
 pub(crate) mod instance_group;
 pub(crate) mod shape;
 pub(crate) mod shape_group;

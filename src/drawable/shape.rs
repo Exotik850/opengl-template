@@ -1,5 +1,5 @@
 use glium::index::PrimitiveType;
-use glium::{Display, DrawParameters, Frame, Program, Surface, VertexBuffer};
+use glium::{Display, VertexBuffer};
 use util::bufferable::{BufferObject, Bufferable};
 use util::vertex::F32vec3;
 
