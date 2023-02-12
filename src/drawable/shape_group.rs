@@ -2,6 +2,7 @@ use drawable::instance_group::HasPos;
 use drawable::shape::HasShape;
 use glium::{DrawParameters, Frame, Program, Surface, uniform, VertexBuffer};
 use glium::index::NoIndices;
+use rayon::prelude::*;
 use util::attribute::Attr;
 
 struct ShapeGroup<T>
@@ -30,23 +31,23 @@ where
     }
 
     fn ref_data(&self) -> &[Attr] {
-        todo!()
+        &self.transforms
     }
 
     fn mut_data(&mut self) -> &mut [Attr] {
-        todo!()
+        &mut self.transforms
     }
 
     fn ref_buffer(&self) -> &VertexBuffer<Attr> {
-        todo!()
+        &self.transform_buffer
     }
 
     fn mut_buffer(&mut self) -> &mut VertexBuffer<Attr> {
-        todo!()
+        &mut self.transform_buffer
     }
 
     fn rotate_z(&mut self, angle: f32) {
-        todo!()
+        self.transforms.par_iter_mut().for_each(|t| t.rotate_z(angle));
     }
 
     fn draw(
