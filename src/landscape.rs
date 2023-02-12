@@ -1,7 +1,8 @@
-use drawable::instance_group::HasPos;
-use drawable::shape::Shape;
+use drawable::shape::{HasShape, Shape};
+use drawable::shape_group::ShapeGroup;
+use drawable::Drawable;
 use glium::index::PrimitiveType;
-use glium::{Display, VertexBuffer};
+use glium::{Display, DrawParameters, Frame, Program};
 use noise::{NoiseFn, Perlin};
 use rand::{thread_rng, RngCore};
 use rayon::prelude::*;
@@ -14,9 +15,7 @@ use util::vertex::F32vec3;
 struct Dims(i32, i32, f64, f64);
 
 pub struct Landscape {
-    shape: Shape,
-    transform: [Attr; 1],
-    transform_buffer: VertexBuffer<Attr>,
+    shape: ShapeGroup<Shape>,
     noise: Perlin,
     time: f64,
     dims: Dims,
@@ -52,11 +51,14 @@ impl Landscape {
         let shape = Shape::from_vertices(&vertices, PrimitiveType::LineStrip, display);
         let mut transform = [Attr::default()];
         transform[0].rotate_x(-PI / 3.0);
-        let transform_buffer = Attr::new_vbo(display, &transform);
+        let transforms = Attr::new_vbo(display, &transform);
+        let shape = ShapeGroup {
+            shapes: vec![shape],
+            transforms: vec![transforms],
+        };
+
         Landscape {
             shape,
-            transform,
-            transform_buffer,
             noise,
             time,
             dims: Dims(cols, rows, res, nres),
@@ -64,40 +66,23 @@ impl Landscape {
     }
 }
 
-impl HasPos for Landscape {
-    type RefType = Shape;
-    type Type = Landscape;
-
-    fn ref_shape(&self) -> Box<[&Shape]> {
-        Box::from([&self.shape])
-    }
-
-    fn mut_shape(&mut self) -> Box<[&mut Shape]> {
-        Box::from([&mut self.shape])
-    }
-
-    fn ref_data(&self) -> &[Attr] {
-        &self.transform
-    }
-
-    fn mut_data(&mut self) -> &mut [Attr] {
-        &mut self.transform
-    }
-
-    fn ref_buffer(&self) -> &VertexBuffer<Attr> {
-        &self.transform_buffer
-    }
-
-    fn mut_buffer(&mut self) -> &mut VertexBuffer<Attr> {
-        &mut self.transform_buffer
+impl Drawable for Landscape {
+    fn draw(
+        &self,
+        target: &mut Frame,
+        program: &Program,
+        params: &DrawParameters,
+        perspective: [[f32; 4]; 4],
+    ) {
+        self.shape.draw(target, program, params, perspective);
     }
 
     fn update(&mut self) {
         let dims = self.dims.clone();
         let time = self.time;
         let noise = self.noise;
-        self.shape
-            .vertices
+        self.shape.shapes[0]
+            .mut_vertices()
             .par_iter_mut()
             .chunks(2)
             .enumerate()
@@ -111,6 +96,6 @@ impl HasPos for Landscape {
     }
 
     fn rotate_z(&mut self, angle: f32) {
-        self.transform[0].rotate_z(angle);
+        self.shape.rotate_z(angle);
     }
 }

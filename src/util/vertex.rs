@@ -36,7 +36,7 @@ impl F32vec3 {
         *self *= limit;
     }
 
-    pub fn rotateZ(&mut self, ang: f32) {
+    pub fn rotate_z(&mut self, ang: f32) {
         let (x, y) = (self.x(), self.y());
         let (cs, sn) = (ang.cos(), ang.sin());
         self.position[0] = x * cs - y * sn;

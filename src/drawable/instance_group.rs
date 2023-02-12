@@ -1,17 +1,18 @@
 use super::shape::HasShape;
-use glium::index::{NoIndices};
+use drawable::Drawable;
+use glium::index::NoIndices;
 use glium::*;
 use rayon::prelude::*;
 use std::ops::{Index, IndexMut};
 use util::attribute::Attr;
+use util::bufferable::{BufferObject, Bufferable};
 
 pub struct InstanceGroup<T>
 where
     T: HasShape,
 {
     shape: T,
-    transforms: Vec<Attr>,
-    transform_buffer: VertexBuffer<Attr>,
+    transforms: BufferObject<Attr>,
 }
 
 impl<T> InstanceGroup<T>
@@ -21,56 +22,8 @@ where
     pub fn new(shape: T, num: usize, display: &Display) -> Self {
         let mut transforms = vec![Attr::default(); num];
         transforms.par_iter_mut().for_each(|p| p.randomize());
-        let transform_buffer = VertexBuffer::dynamic(display, &transforms).unwrap();
-        InstanceGroup {
-            shape,
-            transforms,
-            transform_buffer,
-        }
-    }
-}
-
-pub trait HasPos {
-    type RefType: HasShape;
-    type Type;
-    fn ref_shape(&self) -> Box<[&Self::RefType]>;
-    fn mut_shape(&mut self) -> Box<[&mut Self::RefType]>;
-    fn ref_data(&self) -> &[Attr];
-    fn mut_data(&mut self) -> &mut [Attr];
-    fn ref_buffer(&self) -> &VertexBuffer<Attr>;
-    fn mut_buffer(&mut self) -> &mut VertexBuffer<Attr>;
-    fn update_buffers(&self) {
-        self.ref_buffer().write(self.ref_data());
-        self.ref_shape().iter_mut().for_each(|p| p.update_vbo());
-    }
-    fn update(&mut self) {}
-    fn rotate_z(&mut self, angle: f32);
-    fn x(&self) -> f32 {self.ref_data()[0].x()}
-    fn y(&self) -> f32 {self.ref_data()[0].y()}
-    fn z(&self) -> f32{self.ref_data()[0].z()}
-    fn get_id(&self) -> usize {
-        self.ref_shape()[0].get_id()
-    }
-    fn draw(
-        &self,
-        target: &mut Frame,
-        program: &Program,
-        params: &DrawParameters,
-        perspective: [[f32; 4]; 4],
-    ) {
-        self.update_buffers();
-        target
-            .draw(
-                (
-                    self.ref_shape()[0].ref_vbo(),
-                    self.ref_buffer().per_instance().unwrap(),
-                ),
-                &NoIndices(*self.ref_shape()[0].ref_index()),
-                &program,
-                &uniform! {u_light: [-1.0, 0.4, 0.9f32], perspective: perspective},
-                &params,
-            )
-            .unwrap();
+        let transforms = Attr::new_vbo(display, &transforms);
+        InstanceGroup { shape, transforms }
     }
 }
 
@@ -94,41 +47,26 @@ where
     }
 }
 
-impl<T> HasPos for InstanceGroup<T>
-where
-    T: HasShape,
-{
-    type RefType = T;
-    type Type = InstanceGroup<T>;
-
-    fn ref_shape(&self) -> Box<[&T]> {
-        Box::from([&self.shape])
-    }
-
-    fn mut_shape(&mut self) -> Box<[&mut T]> {
-        Box::from([&mut self.shape])
-    }
-
-    fn ref_data(&self) -> &[Attr] {
-        self.transforms.as_slice()
-    }
-
-    fn mut_data(&mut self) -> &mut [Attr] {
-        self.transforms.as_mut_slice()
-    }
-
-    fn ref_buffer(&self) -> &VertexBuffer<Attr> {
-        &self.transform_buffer
-    }
-
-    fn mut_buffer(&mut self) -> &mut VertexBuffer<Attr> {
-        &mut self.transform_buffer
+impl<T: HasShape> Drawable for InstanceGroup<T> {
+    fn draw(
+        &self,
+        target: &mut Frame,
+        program: &Program,
+        params: &DrawParameters,
+        perspective: [[f32; 4]; 4],
+    ) {
+        target
+            .draw(
+                (self.shape.ref_vbo(), self.transforms.per_instance()),
+                &NoIndices(*self.shape.ref_index()),
+                &program,
+                &uniform! {u_light: [-1.0, 0.4, 0.9f32], perspective: perspective},
+                &params,
+            )
+            .unwrap();
     }
 
     fn rotate_z(&mut self, angle: f32) {
-        self.transforms.par_iter_mut().for_each(|p| {
-            p.rotate_y(angle);
-            p.rotate_z(angle);
-        });
+        self.transforms.iter_mut().for_each(|t| t.rotate_z(angle));
     }
 }

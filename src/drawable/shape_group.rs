@@ -1,55 +1,22 @@
-use drawable::instance_group::HasPos;
 use drawable::shape::HasShape;
-use glium::{DrawParameters, Frame, Program, Surface, uniform, VertexBuffer};
+use drawable::Drawable;
 use glium::index::NoIndices;
-use rayon::prelude::*;
+use glium::{uniform, DrawParameters, Frame, Program, Surface};
 use util::attribute::Attr;
+use util::bufferable::BufferObject;
 
-struct ShapeGroup<T>
+pub struct ShapeGroup<T>
 where
     T: HasShape,
 {
-    shapes: Vec<T>,
-    transforms: Vec<Attr>,
-    transform_buffer: VertexBuffer<Attr>,
-    ids: Vec<usize>,
+    pub shapes: Vec<T>,
+    pub transforms: Vec<BufferObject<Attr>>,
 }
 
-impl<T> HasPos for ShapeGroup<T>
+impl<T> Drawable for ShapeGroup<T>
 where
     T: HasShape,
 {
-    type RefType = T;
-    type Type = ShapeGroup<T>;
-
-    fn ref_shape(&self) -> Box<[&Self::RefType]> {
-        todo!()
-    }
-
-    fn mut_shape(&mut self) -> Box<[&mut Self::RefType]> {
-        todo!()
-    }
-
-    fn ref_data(&self) -> &[Attr] {
-        &self.transforms
-    }
-
-    fn mut_data(&mut self) -> &mut [Attr] {
-        &mut self.transforms
-    }
-
-    fn ref_buffer(&self) -> &VertexBuffer<Attr> {
-        &self.transform_buffer
-    }
-
-    fn mut_buffer(&mut self) -> &mut VertexBuffer<Attr> {
-        &mut self.transform_buffer
-    }
-
-    fn rotate_z(&mut self, angle: f32) {
-        self.transforms.par_iter_mut().for_each(|t| t.rotate_z(angle));
-    }
-
     fn draw(
         &self,
         target: &mut Frame,
@@ -57,21 +24,23 @@ where
         params: &DrawParameters,
         perspective: [[f32; 4]; 4],
     ) {
-        self.update_buffers();
-        // for &i in self.ids.iter().zip() {
-        //
-        // }
-        target
-            .draw(
-                (
-                    self.ref_shape()[0].ref_vbo(),
-                    self.ref_buffer().per_instance().unwrap(),
-                ),
-                &NoIndices(*self.ref_shape()[0].ref_index()),
-                &program,
-                &uniform! {u_light: [-1.0, 0.4, 0.9f32], perspective: perspective},
-                &params,
-            )
-            .unwrap();
+        for (shape, transform) in self.shapes.iter().zip(self.transforms.iter()) {
+            transform.update_buffer();
+            target
+                .draw(
+                    (shape.ref_vbo(), transform.per_instance()),
+                    &NoIndices(*shape.ref_index()),
+                    &program,
+                    &uniform! {u_light: [-1.0, 0.4, 0.9f32], perspective: perspective},
+                    &params,
+                )
+                .unwrap();
+        }
+    }
+
+    fn rotate_z(&mut self, angle: f32) {
+        self.transforms
+            .iter_mut()
+            .for_each(|t| t.iter_mut().for_each(|t| t.rotate_z(angle)));
     }
 }

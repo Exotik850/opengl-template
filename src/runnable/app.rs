@@ -1,5 +1,5 @@
 use super::engine::Runnable;
-use drawable::instance_group::HasPos;
+use drawable::Drawable;
 use glium::glutin::event_loop::EventLoop;
 use std::any::Any;
 use std::cell::RefCell;
@@ -34,7 +34,7 @@ impl App {
     pub fn run<T, U>(self, mut engine: T)
     where
         T: Runnable<U> + Any,
-        U: HasPos,
+        U: Drawable,
     {
         let event_loop = self.grab_event_loop();
         event_loop.run(move |ev, _, control_flow| {

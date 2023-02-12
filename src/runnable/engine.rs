@@ -1,5 +1,5 @@
-use drawable::instance_group::{HasPos, InstanceGroup};
-use drawable::shape::{HasShape, Shape};
+use drawable::shape::Shape;
+use drawable::Drawable;
 use glium::{glutin, Display, Program, Surface};
 use landscape::Landscape;
 use std::f32::consts::PI;
@@ -89,7 +89,7 @@ impl Updatable for Engine {
 
 // Trait that makes methods for references to all necessary objects
 pub trait Updatable {
-    type RefType: HasPos;
+    type RefType: Drawable;
     type Type;
 
     // Make a default display given an event loop
@@ -118,7 +118,7 @@ pub trait Updatable {
 // Trait for holding the main functions of the engine
 pub trait Runnable<T>
 where
-    T: HasPos,
+    T: Drawable,
 {
     fn window_handle(&mut self, window_event: &WindowEvent, control_flow: &mut ControlFlow);
     fn handle_events(&mut self, ev: &Event<()>, control_flow: &mut ControlFlow);
@@ -130,7 +130,7 @@ where
 impl<T, U> Runnable<T> for U
 where
     U: Updatable<RefType = T>,
-    T: HasPos,
+    T: Drawable,
 {
     // Handle window closes and send keyboard inputs to key handler
     fn window_handle(&mut self, window_event: &WindowEvent, control_flow: &mut ControlFlow) {
@@ -207,7 +207,7 @@ where
 
         for s in objects.iter() {
             // Draw the object onto the frame with the given shader
-            s.draw(&mut target, &programs[s.get_id()], &params, perspective);
+            s.draw(&mut target, &programs[0], &params, perspective);
         }
 
         // Finish with the frame
