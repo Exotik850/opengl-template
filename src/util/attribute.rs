@@ -1,4 +1,3 @@
-use glium::{Display, Vertex, VertexBuffer};
 use rand::{thread_rng, Rng};
 
 #[derive(Copy, Clone, Debug)]
@@ -21,6 +20,40 @@ impl Default for Attr {
         let color = [1.0, 0.0, 0.0, 1.0];
         Attr {
             world_position,
+            rotation_matrix,
+            color,
+        }
+    }
+}
+
+impl From<&[f32; 3]> for Attr {
+    fn from(value: &[f32; 3]) -> Self {
+        let rotation_matrix = [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ];
+        let color = [1.0, 0.0, 0.0, 1.0];
+        Attr {
+            world_position: *value,
+            rotation_matrix,
+            color,
+        }
+    }
+}
+
+impl From<[f32; 3]> for Attr {
+    fn from(value: [f32; 3]) -> Self {
+        let rotation_matrix = [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ];
+        let color = [1.0, 0.0, 0.0, 1.0];
+        Attr {
+            world_position: value,
             rotation_matrix,
             color,
         }
