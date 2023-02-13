@@ -86,3 +86,5 @@ impl HasShape for Shape {
         self.id
     }
 }
+
+unsafe impl Send for Shape {}

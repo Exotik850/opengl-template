@@ -2,19 +2,24 @@ use drawable::shape::HasShape;
 use drawable::Drawable;
 use glium::index::NoIndices;
 use glium::{uniform, DrawParameters, Frame, Program, Surface};
+use rayon::prelude::{
+    IntoParallelIterator, IntoParallelRefIterator, IntoParallelRefMutIterator, ParallelBridge,
+    ParallelIterator,
+};
+use std::iter::{zip, Map};
 use std::slice::{Iter, IterMut};
 use util::attribute::Attr;
 use util::bufferable::BufferObject;
 
 pub struct ShapeGroup<T>
 where
-    T: HasShape,
+    T: HasShape + Send,
 {
-    pub shapes: Vec<T>,
-    pub transforms: Vec<BufferObject<Attr>>,
+    pub shapes: Vec<Box<T>>,
+    pub transforms: Vec<Box<BufferObject<Attr>>>,
 }
 
-impl<T: HasShape> Default for ShapeGroup<T> {
+impl<T: HasShape + Send> Default for ShapeGroup<T> {
     fn default() -> Self {
         Self {
             shapes: vec![],
@@ -23,17 +28,17 @@ impl<T: HasShape> Default for ShapeGroup<T> {
     }
 }
 
-impl<T: HasShape> ShapeGroup<T> {
+impl<T: HasShape + Send> ShapeGroup<T> {
     pub fn push(&mut self, obj: (T, BufferObject<Attr>)) {
-        self.shapes.push(obj.0);
-        self.transforms.push(obj.1);
+        self.shapes.push(Box::from(obj.0));
+        self.transforms.push(Box::from(obj.1));
     }
 
-    pub fn iter_shapes(&mut self) -> Iter<'_, T> {
+    pub fn iter_shapes(&mut self) -> Iter<'_, Box<T>> {
         self.shapes.iter()
     }
 
-    pub fn iter_mut_shapes(&mut self) -> IterMut<'_, T> {
+    pub fn iter_mut_shapes(&mut self) -> IterMut<'_, Box<T>> {
         self.shapes.iter_mut()
     }
 
@@ -44,7 +49,7 @@ impl<T: HasShape> ShapeGroup<T> {
 
 impl<T> Drawable for ShapeGroup<T>
 where
-    T: HasShape,
+    T: HasShape + Send,
 {
     fn draw(
         &self,
@@ -54,7 +59,9 @@ where
         perspective: [[f32; 4]; 4],
     ) {
         self.update_buffers();
-        for (shape, transform) in self.shapes.iter().zip(self.transforms.iter()) {
+        let shapes = self.shapes.as_slice();
+        let transforms = self.transforms.as_slice();
+        for (shape, transform) in zip(shapes, transforms) {
             target
                 .draw(
                     (shape.ref_vbo(), transform.per_instance()),

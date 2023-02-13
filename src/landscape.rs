@@ -3,8 +3,9 @@ use drawable::shape_group::ShapeGroup;
 use drawable::Drawable;
 use glium::index::PrimitiveType;
 use glium::{Display, DrawParameters, Frame, Program};
-use noise::{NoiseFn, OpenSimplex, Perlin};
+use noise::{NoiseFn, Perlin};
 use rand::{thread_rng, RngCore};
+use rayon::prelude::*;
 use util::attribute::Attr;
 use util::bufferable::Bufferable;
 use util::vertex::F32vec3;
@@ -14,7 +15,7 @@ struct Dims(i32, i32, f64, f64);
 
 pub struct Landscape {
     shapes: ShapeGroup<Shape>,
-    noise: OpenSimplex,
+    noise: Perlin,
     time: f64,
     dims: Dims,
 }
@@ -23,22 +24,22 @@ impl Landscape {
     pub fn default(display: &Display) -> Self {
         let (cols, rows, res, nres) = (100, 100, 0.01, 0.5);
         let height = 1.0;
-        let noise = OpenSimplex::new(thread_rng().next_u32());
+        let noise = Perlin::new(thread_rng().next_u32());
         let time = 0.0;
 
         let mut shapes = ShapeGroup::default();
-        for j in 0..cols {
-            let y = j as f64 * res - (rows as f64 / 2.0) * res;
+        for i in 0..rows {
+            let y = (i as f64 - (rows as f64 / 2.0)) * res;
             let mut vertices = vec![];
-            for i in 0..rows {
-                let x = i as f64 * res - (cols as f64 / 2.0) * res;
+            for j in 0..cols {
+                let x = (j as f64 - (cols as f64 / 2.0)) * res;
                 let z = noise.get([x * nres, y * nres, time]) * height;
                 let z2 = noise.get([x * nres, (y + res) * nres, time]) * height;
-                vertices.push(F32vec3::from([x as f32, z as f32, y as f32]));
-                vertices.push(F32vec3::from([x as f32, z2 as f32, (y + res) as f32]));
+                vertices.push(F32vec3::from([(x + res) as f32, y as f32, z as f32]));
+                vertices.push(F32vec3::from([(x + res) as f32, y as f32, z2 as f32]));
             }
             let shape = Shape::from_vertices(&vertices, PrimitiveType::LineStrip, display);
-            let attr = Attr::new_vbo(display, &[Attr::from([(y * res) as f32, 0.0, 0.0])]);
+            let attr = Attr::new_vbo(display, &[Attr::from([0.0, (y*res) as f32, 0.0])]);
             shapes.push((shape, attr));
         }
 
@@ -66,15 +67,17 @@ impl Drawable for Landscape {
         let dims = self.dims.clone();
         let time = self.time;
         let noise = self.noise;
-        for shape in self.shapes.iter_mut_shapes() {
+        let shapes = self.shapes.iter_mut_shapes().enumerate();
+
+        shapes.for_each(|(p, shape)| {
             for (idx, verts) in shape.vertices.mut_data().chunks_mut(2).enumerate() {
-                let x = ((idx % dims.0 as usize) as f64 + 1.0) * dims.2;
-                let y = ((idx / dims.0 as usize) as f64 + 1.0) * dims.2;
+                let x = idx as f64 * dims.2;
+                let y = p as f64 * dims.2;
                 verts[0].position[1] = noise.get([x, y, time]) as f32;
                 verts[1].position[1] = noise.get([x, y + dims.2 * dims.3, time]) as f32;
             }
             shape.vertices.update_buffer();
-        }
+        });
         self.time += 0.01;
     }
 

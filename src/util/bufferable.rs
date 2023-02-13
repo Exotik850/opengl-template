@@ -8,6 +8,8 @@ pub struct BufferObject<T: Vertex> {
     buffer: Box<VertexBuffer<T>>,
 }
 
+// unsafe impl<T: Vertex> Send for BufferObject<T> {}
+
 impl<T: Vertex> Index<usize> for BufferObject<T> {
     type Output = T;
     fn index(&self, index: usize) -> &Self::Output {

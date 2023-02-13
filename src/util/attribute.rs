@@ -1,4 +1,7 @@
 use rand::{thread_rng, Rng};
+use rayon::iter::plumbing::UnindexedConsumer;
+use rayon::iter::ParallelIterator;
+use std::slice::Iter;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Attr {
@@ -135,3 +138,5 @@ impl Attr {
         a
     }
 }
+
+// unsafe impl Send for Attr {}
