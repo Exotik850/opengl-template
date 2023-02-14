@@ -1,3 +1,4 @@
+mod boids;
 mod drawable;
 mod landscape;
 mod runnable;

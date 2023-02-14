@@ -1,5 +1,5 @@
 use drawable::shape::HasShape;
-use drawable::Drawable;
+use drawable::{DrawUniforms, Drawable};
 use glium::index::NoIndices;
 use glium::{uniform, DrawParameters, Frame, Program, Surface};
 use rayon::prelude::{
@@ -56,7 +56,7 @@ where
         target: &mut Frame,
         program: &Program,
         params: &DrawParameters,
-        perspective: [[f32; 4]; 4],
+        uniforms: DrawUniforms,
     ) {
         self.update_buffers();
         let shapes = self.shapes.as_slice();
@@ -67,7 +67,7 @@ where
                     (shape.ref_vbo(), transform.per_instance()),
                     &NoIndices(*shape.ref_index()),
                     &program,
-                    &uniform! {u_light: [-1.0, 0.4, 0.9f32], perspective: perspective},
+                    &uniforms,
                     &params,
                 )
                 .unwrap();

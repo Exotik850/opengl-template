@@ -1,5 +1,5 @@
 use super::shape::HasShape;
-use drawable::Drawable;
+use drawable::{DrawUniforms, Drawable};
 use glium::index::NoIndices;
 use glium::*;
 use rayon::prelude::*;
@@ -54,14 +54,14 @@ impl<T: HasShape> Drawable for InstanceGroup<T> {
         target: &mut Frame,
         program: &Program,
         params: &DrawParameters,
-        perspective: [[f32; 4]; 4],
+        uniforms: DrawUniforms,
     ) {
         target
             .draw(
                 (self.shape.ref_vbo(), self.transforms.per_instance()),
                 &NoIndices(*self.shape.ref_index()),
                 &program,
-                &uniform! {u_light: [-1.0, 0.4, 0.9f32], perspective: perspective},
+                &uniforms,
                 &params,
             )
             .unwrap();

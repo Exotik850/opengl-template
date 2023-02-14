@@ -98,7 +98,8 @@ pub trait Updatable {
             .with_inner_size(LogicalSize {
                 width: 800.0,
                 height: 800.0,
-            });
+            })
+            .with_resizable(false);
         let cb = glutin::ContextBuilder::new()
             .with_depth_buffer(24)
             .with_vsync(true);
@@ -186,27 +187,9 @@ where
             ..Default::default()
         };
 
-        let perspective = {
-            let (width, height) = target.get_dimensions();
-            let aspect_ratio = height as f32 / width as f32;
-
-            let fov: f32 = PI / 2.0;
-            let zfar = 1024.0;
-            let znear = 0.1;
-
-            let f = 1.0 / (fov / 2.0).tan();
-
-            [
-                [f * aspect_ratio, 0.0, 0.0, 0.0],
-                [0.0, f, 0.0, 0.0],
-                [0.0, 0.0, (zfar + znear) / (zfar - znear), 1.0],
-                [0.0, 0.0, -(2.0 * zfar * znear) / (zfar - znear), 0.0],
-            ]
-        };
-
         for s in objects.iter() {
             // Draw the object onto the frame with the given shader
-            s.draw(&mut target, &programs[0], &params, perspective);
+            s.draw(&mut target, &programs[0], &params, Default::default());
         }
 
         // Finish with the frame

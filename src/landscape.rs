@@ -1,6 +1,6 @@
 use drawable::shape::{HasShape, Shape};
 use drawable::shape_group::ShapeGroup;
-use drawable::Drawable;
+use drawable::{DrawUniforms, Drawable};
 use glium::index::PrimitiveType;
 use glium::{Display, DrawParameters, Frame, Program};
 use noise::{NoiseFn, Perlin};
@@ -39,7 +39,7 @@ impl Landscape {
                 vertices.push(F32vec3::from([(x + res) as f32, y as f32, z2 as f32]));
             }
             let shape = Shape::from_vertices(&vertices, PrimitiveType::LineStrip, display);
-            let attr = Attr::new_vbo(display, &[Attr::from([0.0, (y*res) as f32, 0.0])]);
+            let attr = Attr::new_vbo(display, &[Attr::from([0.0, (y * res) as f32, 0.0])]);
             shapes.push((shape, attr));
         }
 
@@ -58,9 +58,9 @@ impl Drawable for Landscape {
         target: &mut Frame,
         program: &Program,
         params: &DrawParameters,
-        perspective: [[f32; 4]; 4],
+        uniforms: DrawUniforms,
     ) {
-        self.shapes.draw(target, program, params, perspective);
+        self.shapes.draw(target, program, params, uniforms);
     }
 
     fn update(&mut self) {
