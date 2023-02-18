@@ -1,5 +1,6 @@
 use std::fmt::{Display as Disp, Formatter};
 use std::ops;
+use util::Manipulate;
 
 #[derive(Copy, Clone, Debug)]
 pub struct F32vec3 {
@@ -36,13 +37,6 @@ impl F32vec3 {
         *self *= limit;
     }
 
-    pub fn rotate_z(&mut self, ang: f32) {
-        let (x, y) = (self.x(), self.y());
-        let (cs, sn) = (ang.cos(), ang.sin());
-        self.position[0] = x * cs - y * sn;
-        self.position[1] = x * sn + y * cs;
-    }
-
     pub fn lerp(&self, other: &Self, amt: f32) -> F32vec3 {
         *other * amt + *self * (1.0 - amt)
     }
@@ -65,6 +59,29 @@ impl F32vec3 {
             self.z() * other.x() - self.x() * other.z(),
             self.x() * other.y() - self.y() * other.x(),
         ])
+    }
+}
+
+impl Manipulate for F32vec3 {
+    fn rotate_axis(&mut self, axis: usize, ang: f32) {
+        let (x, y, z) = (self.x(), self.y(), self.z());
+        let (cs, sn) = (ang.cos(), ang.sin());
+
+        match axis {
+            0 => {
+                self.position[1] = y * cs - z * sn;
+                self.position[2] = y * sn + z * cs;
+            }
+            1 => {
+                self.position[0] = x * cs + z * sn;
+                self.position[2] = -x * sn + z * cs;
+            }
+            2 => {
+                self.position[0] = x * cs - y * sn;
+                self.position[1] = x * sn + y * cs;
+            }
+            _ => panic!("Invalid axis value"),
+        }
     }
 }
 

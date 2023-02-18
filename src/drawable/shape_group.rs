@@ -10,6 +10,7 @@ use std::iter::{zip, Map};
 use std::slice::{Iter, IterMut};
 use util::attribute::Attr;
 use util::bufferable::BufferObject;
+use util::Manipulate;
 
 pub struct ShapeGroup<T>
 where
@@ -73,10 +74,12 @@ where
                 .unwrap();
         }
     }
+}
 
-    fn rotate_z(&mut self, angle: f32) {
+impl<T: HasShape + Send> Manipulate for ShapeGroup<T> {
+    fn rotate_axis(&mut self, axis: usize, ang: f32) {
         self.transforms
             .iter_mut()
-            .for_each(|t| t.iter_mut().for_each(|t| t.rotate_z(angle)));
+            .for_each(|p| p.rotate_axis(axis, ang))
     }
 }

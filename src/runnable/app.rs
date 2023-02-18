@@ -4,6 +4,7 @@ use glium::glutin::event_loop::EventLoop;
 use std::any::Any;
 use std::cell::RefCell;
 use std::ops::Deref;
+use util::Manipulate;
 
 // Holds the event loop that will run the engine
 pub struct App {
@@ -34,7 +35,7 @@ impl App {
     pub fn run<T, U>(self, mut engine: T)
     where
         T: Runnable<U> + Any,
-        U: Drawable,
+        U: Drawable + Manipulate,
     {
         let event_loop = self.grab_event_loop();
         event_loop.run(move |ev, _, control_flow| {

@@ -1,7 +1,5 @@
 use rand::{thread_rng, Rng};
-use rayon::iter::plumbing::UnindexedConsumer;
-use rayon::iter::ParallelIterator;
-use std::slice::Iter;
+use util::Manipulate;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Attr {
@@ -63,6 +61,7 @@ impl From<[f32; 3]> for Attr {
     }
 }
 
+#[allow(dead_code)]
 impl Attr {
     pub fn translate(&mut self, x: f32, y: f32, z: f32) {
         self.world_position[0] += x;
@@ -88,41 +87,6 @@ impl Attr {
         self.world_position[2]
     }
 
-    pub fn rotate_z(&mut self, ang: f32) {
-        let cos_theta = ang.cos();
-        let sin_theta = ang.sin();
-        for i in 0..4 {
-            let x = self.rotation_matrix[i][0];
-            let y = self.rotation_matrix[i][1];
-            self.rotation_matrix[i][0] = cos_theta * x - sin_theta * y;
-            self.rotation_matrix[i][1] = sin_theta * x + cos_theta * y;
-        }
-    }
-
-    pub fn rotate_y(&mut self, angle: f32) {
-        let cos_theta = angle.cos();
-        let sin_theta = angle.sin();
-
-        for i in 0..4 {
-            let x = self.rotation_matrix[i][0];
-            let z = self.rotation_matrix[i][2];
-            self.rotation_matrix[i][0] = cos_theta * x + sin_theta * z;
-            self.rotation_matrix[i][2] = -sin_theta * x + cos_theta * z;
-        }
-    }
-
-    pub fn rotate_x(&mut self, angle: f32) {
-        let cos_theta = angle.cos();
-        let sin_theta = angle.sin();
-
-        for i in 0..4 {
-            let y = self.rotation_matrix[i][1];
-            let z = self.rotation_matrix[i][2];
-            self.rotation_matrix[i][1] = cos_theta * y - sin_theta * z;
-            self.rotation_matrix[i][2] = sin_theta * y + cos_theta * z;
-        }
-    }
-
     pub fn randomize(&mut self) {
         self.world_position
             .iter_mut()
@@ -139,4 +103,23 @@ impl Attr {
     }
 }
 
-// unsafe impl Send for Attr {}
+impl Manipulate for Attr {
+    fn rotate_axis(&mut self, axis: usize, ang: f32) {
+        let (cs, sn) = (ang.cos(), ang.sin());
+        let mut rot_matrix = self.rotation_matrix;
+        for i in 0..4 {
+            let (a, b) = match (axis, i) {
+                (0, 1) => (cs, -sn),
+                (0, 2) => (sn, cs),
+                (1, 0) => (cs, sn),
+                (1, 2) => (-sn, cs),
+                (2, 0) => (cs, -sn),
+                (2, 1) => (sn, cs),
+                _ => (1.0, 0.0),
+            };
+            rot_matrix[i][0] = a * self.rotation_matrix[i][0] + b * self.rotation_matrix[i][2];
+            rot_matrix[i][2] = -b * self.rotation_matrix[i][0] + a * self.rotation_matrix[i][2];
+        }
+        self.rotation_matrix = rot_matrix;
+    }
+}

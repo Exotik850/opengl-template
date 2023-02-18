@@ -9,6 +9,7 @@ use rayon::prelude::*;
 use util::attribute::Attr;
 use util::bufferable::Bufferable;
 use util::vertex::F32vec3;
+use util::Manipulate;
 
 #[derive(Copy, Clone)]
 struct Dims(i32, i32, f64, f64);
@@ -80,8 +81,10 @@ impl Drawable for Landscape {
         });
         self.time += 0.01;
     }
+}
 
-    fn rotate_z(&mut self, angle: f32) {
-        self.shapes.rotate_z(angle);
+impl Manipulate for Landscape {
+    fn rotate_axis(&mut self, axis: usize, ang: f32) {
+        self.shapes.rotate_axis(axis, ang);
     }
 }

@@ -66,8 +66,4 @@ impl<T: HasShape> Drawable for InstanceGroup<T> {
             )
             .unwrap();
     }
-
-    fn rotate_z(&mut self, angle: f32) {
-        self.transforms.iter_mut().for_each(|t| t.rotate_z(angle));
-    }
 }

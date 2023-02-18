@@ -2,28 +2,29 @@ use glium::vertex::PerInstance;
 use glium::{Display, Vertex, VertexBuffer};
 use std::ops::{Index, IndexMut};
 use std::slice::{Iter, IterMut};
+use util::Manipulate;
 
-pub struct BufferObject<T: Vertex> {
+pub struct BufferObject<T: Vertex + Manipulate> {
     data: Box<Vec<T>>,
     buffer: Box<VertexBuffer<T>>,
 }
 
 // unsafe impl<T: Vertex> Send for BufferObject<T> {}
 
-impl<T: Vertex> Index<usize> for BufferObject<T> {
+impl<T: Vertex + Manipulate> Index<usize> for BufferObject<T> {
     type Output = T;
     fn index(&self, index: usize) -> &Self::Output {
         &self.data[index]
     }
 }
 
-impl<T: Vertex> IndexMut<usize> for BufferObject<T> {
+impl<T: Vertex + Manipulate> IndexMut<usize> for BufferObject<T> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.data[index]
     }
 }
 
-impl<T: Vertex> BufferObject<T> {
+impl<T: Vertex + Manipulate> BufferObject<T> {
     pub fn iter(&self) -> Iter<T> {
         self.data.iter()
     }
@@ -54,7 +55,7 @@ impl<T: Vertex> BufferObject<T> {
 }
 
 pub trait Bufferable {
-    type Type: Vertex;
+    type Type: Vertex + Manipulate;
     fn new_vbo(display: &Display, vertices: &[Self::Type]) -> BufferObject<Self::Type> {
         let data = Box::from(Vec::from(vertices));
         let buffer = Box::from(VertexBuffer::new(display, &vertices).unwrap());
@@ -62,6 +63,12 @@ pub trait Bufferable {
     }
 }
 
-impl<T: Vertex> Bufferable for T {
+impl<T: Vertex + Manipulate> Bufferable for T {
     type Type = T;
+}
+
+impl<T: Vertex + Manipulate> Manipulate for BufferObject<T> {
+    fn rotate_axis(&mut self, axis: usize, ang: f32) {
+        self.data.iter_mut().for_each(|p| p.rotate_axis(axis, ang));
+    }
 }

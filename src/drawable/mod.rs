@@ -57,5 +57,4 @@ pub trait Drawable {
     );
 
     fn update(&mut self) {}
-    fn rotate_z(&mut self, angle: f32);
 }

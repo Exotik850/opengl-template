@@ -3,6 +3,7 @@ use glium::{glutin, Display, Program, Surface};
 use landscape::Landscape;
 use std::f32::consts::PI;
 use std::time::SystemTime;
+use util::Manipulate;
 use winit::dpi::LogicalSize;
 use winit::event::{Event, KeyboardInput, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
@@ -88,7 +89,7 @@ impl Updatable for Engine {
 
 // Trait that makes methods for references to all necessary objects
 pub trait Updatable {
-    type RefType: Drawable;
+    type RefType: Drawable + Manipulate;
     type Type;
 
     // Make a default display given an event loop
@@ -118,7 +119,7 @@ pub trait Updatable {
 // Trait for holding the main functions of the engine
 pub trait Runnable<T>
 where
-    T: Drawable,
+    T: Drawable + Manipulate,
 {
     fn window_handle(&mut self, window_event: &WindowEvent, control_flow: &mut ControlFlow);
     fn handle_events(&mut self, ev: &Event<()>, control_flow: &mut ControlFlow);
@@ -130,7 +131,7 @@ where
 impl<T, U> Runnable<T> for U
 where
     U: Updatable<RefType = T>,
-    T: Drawable,
+    T: Drawable + Manipulate,
 {
     // Handle window closes and send keyboard inputs to key handler
     fn window_handle(&mut self, window_event: &WindowEvent, control_flow: &mut ControlFlow) {
@@ -161,7 +162,7 @@ where
         let start = SystemTime::now();
         let objects = self.mut_objects();
         objects.iter_mut().for_each(|obj| {
-            // obj.rotate_z(0.005);
+            obj.rotate_axis(2, 0.005);
             obj.update()
         });
         println!("Update time: {:?}", start.elapsed().unwrap());
