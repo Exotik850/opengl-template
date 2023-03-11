@@ -1,8 +1,9 @@
+use rand::{thread_rng, Rng};
 use std::fmt::{Display as Disp, Formatter};
 use std::ops;
 use util::Manipulate;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct F32vec3 {
     pub position: [f32; 3],
     pub normal: [f32; 3],
@@ -30,7 +31,7 @@ impl F32vec3 {
         *self /= self.mag();
     }
     pub fn limit(&mut self, limit: f32) {
-        if self.mag_sq() < limit.powi(2) {
+        if self.mag_sq() <= limit.powi(2) {
             return;
         }
         self.normalize();
@@ -60,6 +61,18 @@ impl F32vec3 {
             self.x() * other.y() - self.y() * other.x(),
         ])
     }
+
+    pub fn randomize(&mut self) {
+        self.position
+            .iter_mut()
+            .for_each(|x| *x = thread_rng().gen_range(-2.0..2.0));
+    }
+
+    pub fn random() -> F32vec3 {
+        let mut a = F32vec3::default();
+        a.randomize();
+        a
+    }
 }
 
 impl Manipulate for F32vec3 {
@@ -82,12 +95,6 @@ impl Manipulate for F32vec3 {
             }
             _ => panic!("Invalid axis value"),
         }
-    }
-}
-
-impl Default for F32vec3 {
-    fn default() -> Self {
-        Self::from([0.0; 3])
     }
 }
 

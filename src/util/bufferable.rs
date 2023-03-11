@@ -49,9 +49,7 @@ impl<T: Vertex + Manipulate> BufferObject<T> {
         &self.buffer
     }
 
-    pub fn per_instance(&self) -> PerInstance<'_> {
-        self.buffer.per_instance().unwrap()
-    }
+    pub fn per_instance(&self) -> PerInstance<'_> { self.buffer.per_instance().unwrap() }
 }
 
 pub trait Bufferable {

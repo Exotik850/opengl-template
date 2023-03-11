@@ -2,7 +2,6 @@ pub(crate) mod instance_group;
 pub(crate) mod shape;
 pub(crate) mod shape_group;
 
-use boids::{Boid, NUM_BOIDS};
 use glium::uniforms::UniformValue;
 use glium::{DrawParameters, Frame, Program};
 use std::f32::consts::PI;

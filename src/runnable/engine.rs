@@ -1,3 +1,4 @@
+use boids::Boids;
 use drawable::Drawable;
 use glium::{glutin, Display, Program, Surface};
 use landscape::Landscape;
@@ -44,7 +45,7 @@ pub const BASE_FSHADER: &str = r#"
     "#;
 
 pub struct Engine {
-    pub objects: Vec<Landscape>,
+    pub objects: Vec<Boids>,
     pub programs: Vec<Program>,
     pub display: Display,
 }
@@ -52,7 +53,7 @@ pub struct Engine {
 // Trait for structs that hold a vector of objects that implement HasPos
 // as well as a vector of programs (shaders) to draw the objects
 impl Updatable for Engine {
-    type RefType = Landscape;
+    type RefType = Boids;
     type Type = Engine;
 
     fn mut_objects(&mut self) -> &mut Vec<Self::RefType> {
@@ -72,7 +73,7 @@ impl Updatable for Engine {
     fn init(event_loop: &EventLoop<()>) -> Self::Type {
         let start = SystemTime::now();
         let display = Self::default_display(event_loop);
-        let obj = Landscape::default(&display);
+        let obj = Boids::default(&display, 100_000);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
         println!(
@@ -162,7 +163,7 @@ where
         let start = SystemTime::now();
         let objects = self.mut_objects();
         objects.iter_mut().for_each(|obj| {
-            obj.rotate_axis(2, 0.005);
+            // obj.rotate_axis(1, 0.005);
             obj.update()
         });
         println!("Update time: {:?}", start.elapsed().unwrap());

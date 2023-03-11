@@ -1,4 +1,7 @@
+use drawable::shape::Shape;
 use rand::{thread_rng, Rng};
+use std::ops;
+use util::vertex::F32vec3;
 use util::Manipulate;
 
 #[derive(Copy, Clone, Debug)]
@@ -105,21 +108,60 @@ impl Attr {
 
 impl Manipulate for Attr {
     fn rotate_axis(&mut self, axis: usize, ang: f32) {
-        let (cs, sn) = (ang.cos(), ang.sin());
-        let mut rot_matrix = self.rotation_matrix;
+        let cos = ang.cos();
+        let sin = ang.sin();
+        let mut tmp: [f32; 4] = [0.0; 4];
+
         for i in 0..4 {
-            let (a, b) = match (axis, i) {
-                (0, 1) => (cs, -sn),
-                (0, 2) => (sn, cs),
-                (1, 0) => (cs, sn),
-                (1, 2) => (-sn, cs),
-                (2, 0) => (cs, -sn),
-                (2, 1) => (sn, cs),
-                _ => (1.0, 0.0),
-            };
-            rot_matrix[i][0] = a * self.rotation_matrix[i][0] + b * self.rotation_matrix[i][2];
-            rot_matrix[i][2] = -b * self.rotation_matrix[i][0] + a * self.rotation_matrix[i][2];
+            tmp[i] = self.rotation_matrix[axis][i];
         }
-        self.rotation_matrix = rot_matrix;
+
+        for i in 0..4 {
+            let a = tmp[i];
+            let b = self.rotation_matrix[axis ^ 1][i];
+            let c = self.rotation_matrix[axis ^ 2][i];
+
+            self.rotation_matrix[axis][i] = a * cos - b * sin;
+            self.rotation_matrix[axis ^ 1][i] = a * sin + b * cos;
+            self.rotation_matrix[axis ^ 2][i] = c;
+        }
+    }
+}
+
+impl ops::Add<F32vec3> for Attr {
+    type Output = Attr;
+    fn add(self, other: F32vec3) -> Self::Output {
+        Attr::from([
+            self.x() + other.x(),
+            self.y() + other.y(),
+            self.z() + other.z(),
+        ])
+    }
+}
+
+impl ops::AddAssign<F32vec3> for Attr {
+    fn add_assign(&mut self, other: F32vec3) {
+        self.world_position[0] += other.position[0];
+        self.world_position[1] += other.position[1];
+        self.world_position[2] += other.position[2];
+    }
+}
+
+impl ops::Sub<F32vec3> for Attr {
+    type Output = Attr;
+    fn sub(self, other: F32vec3) -> Self::Output {
+        Attr::from([
+            self.world_position[0] - other.position[0],
+            self.world_position[1] - other.position[1],
+            self.world_position[2] - other.position[2],
+        ])
+    }
+}
+
+impl ops::SubAssign<F32vec3> for Attr {
+    fn sub_assign(&mut self, other: F32vec3) {
+        self.world_position[0] -= other.position[0];
+        self.world_position[1] -= other.position[1];
+        self.world_position[2] -= other.position[2];
     }
 }

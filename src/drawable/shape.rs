@@ -1,7 +1,10 @@
 use glium::index::PrimitiveType;
 use glium::{Display, VertexBuffer};
+use std::f32::consts::PI;
 use util::bufferable::{BufferObject, Bufferable};
 use util::vertex::F32vec3;
+
+const TWO_PI: f32 = PI * 2.0;
 
 // Struct for handling the components of a primitive shape and drawing it to the screen
 pub struct Shape {
@@ -38,6 +41,26 @@ impl Shape {
         Shape {
             vertices,
             index_type: PrimitiveType::TriangleStrip,
+            id: 0,
+        }
+    }
+
+    pub fn circle(display: &Display, radius: f32, num: u32) -> Shape {
+        let mut vertices = vec![];
+
+        let inc = TWO_PI / num as f32;
+        let mut ang = 0.0;
+        while ang <= TWO_PI + 0.0005 {
+            let x = ang.cos() * radius;
+            let y = ang.sin() * radius;
+            vertices.push(F32vec3::from([x, y, 0.0]));
+            ang += inc;
+        }
+
+        let vertices = F32vec3::new_vbo(display, &vertices);
+        Shape {
+            vertices,
+            index_type: PrimitiveType::LineStrip,
             id: 0,
         }
     }
