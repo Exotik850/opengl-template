@@ -27,16 +27,14 @@ impl Shape {
         }
     }
 
-    pub fn quad(display: &Display) -> Shape {
+    pub fn quad(display: &Display, scl: f32) -> Shape {
         let mut vertices = vec![
             F32vec3::from([-1.0, 1.0, 0.0]),
             F32vec3::from([1.0, 1.0, 0.0]),
             F32vec3::from([-1.0, -1.0, 0.0]),
             F32vec3::from([1.0, -1.0, 0.0]),
         ];
-        for i in vertices.iter_mut() {
-            *i *= 0.1;
-        }
+        vertices.iter_mut().for_each(|p| *p *= scl);
         let vertices = F32vec3::new_vbo(display, &vertices);
         Shape {
             vertices,

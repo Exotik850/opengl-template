@@ -1,18 +1,18 @@
-use std::iter::zip;
 use drawable::shape::HasShape;
 use drawable::{DrawUniforms, Drawable};
 use glium::index::NoIndices;
 use glium::{uniform, DrawParameters, Frame, Program, Surface};
+use std::iter::zip;
 use std::slice::{Iter, IterMut};
 use util::attribute::Attr;
 use util::bufferable::BufferObject;
 use util::Manipulate;
 
 ///
-/// Shape groups: Main class 
-/// Can hold multiple shapes and multiple attribute buffers for 
+/// Shape groups: Main class
+/// Can hold multiple shapes and multiple attribute buffers for
 /// better instancing control. Add shapes and BufferObjects before use
-/// 
+///
 
 pub struct ShapeGroup<T>
 where
@@ -44,7 +44,7 @@ impl<T: HasShape + Send> ShapeGroup<T> {
     pub fn iter_mut_shapes(&mut self) -> IterMut<'_, Box<T>> {
         self.shapes.iter_mut()
     }
-    
+
     pub fn iter_transforms(&self, index: usize) -> Iter<'_, Attr> {
         assert!(index < self.shapes.len());
         self.transforms[index].iter()

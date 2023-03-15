@@ -1,8 +1,7 @@
 use boids::Boids;
 use drawable::Drawable;
 use glium::{glutin, Display, Program, Surface};
-use landscape::Landscape;
-use std::f32::consts::PI;
+use gol::GameOfLife;
 use std::time::SystemTime;
 use util::Manipulate;
 use winit::dpi::LogicalSize;
@@ -45,7 +44,7 @@ pub const BASE_FSHADER: &str = r#"
     "#;
 
 pub struct Engine {
-    pub objects: Vec<Boids>,
+    pub objects: Vec<GameOfLife>,
     pub programs: Vec<Program>,
     pub display: Display,
 }
@@ -53,7 +52,7 @@ pub struct Engine {
 // Trait for structs that hold a vector of objects that implement HasPos
 // as well as a vector of programs (shaders) to draw the objects
 impl Updatable for Engine {
-    type RefType = Boids;
+    type RefType = GameOfLife;
     type Type = Engine;
 
     fn mut_objects(&mut self) -> &mut Vec<Self::RefType> {
@@ -73,7 +72,7 @@ impl Updatable for Engine {
     fn init(event_loop: &EventLoop<()>) -> Self::Type {
         let start = SystemTime::now();
         let display = Self::default_display(event_loop);
-        let obj = Boids::default(&display, 100_000);
+        let obj = GameOfLife::default(&display);
         let programs =
             vec![Program::from_source(&display, BASE_VSHADER, BASE_FSHADER, None).unwrap()];
         println!(

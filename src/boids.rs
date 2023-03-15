@@ -62,7 +62,7 @@ impl Drawable for Boids {
             self.velocities[ind].limit(5.0);
             *boid += F32vec3::from(self.velocities[ind]);
         }
-        println!("{:?}", self.velocities[0]);
+        // println!("{:?}", self.velocities[0]);
         self.shapegroup.update_buffers();
     }
 }

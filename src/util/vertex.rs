@@ -39,7 +39,7 @@ impl F32vec3 {
     }
 
     pub fn lerp(&self, other: &Self, amt: f32) -> F32vec3 {
-        *other * amt + *self * (1.0 - amt)
+        (*other - *self) * amt
     }
 
     pub fn dot(&self, other: &Self) -> F32vec3 {
