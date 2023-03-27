@@ -81,19 +81,19 @@ impl Manipulate for F32vec3 {
         let (cs, sn) = (ang.cos(), ang.sin());
 
         match axis {
-            0 => {
+            0 => { // x axis
                 self.position[1] = y * cs - z * sn;
                 self.position[2] = y * sn + z * cs;
             }
-            1 => {
+            1 => { // y axis
                 self.position[0] = x * cs + z * sn;
                 self.position[2] = -x * sn + z * cs;
             }
-            2 => {
+            2 => { // z axis
                 self.position[0] = x * cs - y * sn;
                 self.position[1] = x * sn + y * cs;
             }
-            _ => panic!("Invalid axis value"),
+            _ => panic!("Invalid axis value: {}", axis),
         }
     }
 }
